@@ -1,10 +1,95 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <title>meowflopr</title>
+  <meta charset="UTF-8">
+  <title>MeowFlopr</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="создано flopercin">
+  <link rel="icon" href="Untitled.png">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+
+    body {
+      background: url("Untitled.png") center / cover no-repeat fixed;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: url("Untitled.png") center / cover no-repeat;
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .content {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      text-shadow: 0 0 10px rgba(0,0,0,0.7);
+    }
+
+    .content h1 {
+      font-size: 3rem;
+      margin: 0;
+    }
+
+    .content p {
+      margin-top: 10px;
+      font-size: 1.2rem;
+      opacity: 0.85;
+    }
+
+    .dvd {
+      position: fixed;
+      width: 120px;
+      height: 120px;
+      background: url("Untitled.png") center / contain no-repeat;
+      z-index: 3;
+      pointer-events: none;
+    }
+  </style>
 </head>
 <body>
-  <h1>MeowFlopr</h1>
+  <div class="content">
+    <h1>MeowFlopr</h1>
+    <p>создано flopercin</p>
+  </div>
+
+  <div class="dvd" id="dvd"></div>
+  <div class="overlay"></div>
+
+  <script>
+    const dvd = document.getElementById("dvd");
+    let x = Math.random() * (innerWidth - 120);
+    let y = Math.random() * (innerHeight - 120);
+    let dx = 2;
+    let dy = 2;
+
+    function move() {
+      x += dx;
+      y += dy;
+
+      if (x <= 0 || x + 120 >= innerWidth) dx *= -1;
+      if (y <= 0 || y + 120 >= innerHeight) dy *= -1;
+
+      dvd.style.transform = `translate(${x}px, ${y}px)`;
+      requestAnimationFrame(move);
+    }
+
+    move();
+  </script>
 </body>
 </html>
