@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MeowFlopr Casino</title>
     <link rel="icon" type="image/jpeg" href="main.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,377 +13,442 @@
         body {
             font-family: 'Press Start 2P', system-ui;
             user-select: none;
+            background-color: #09090b;
+            overscroll-behavior: none; /* Блокирует "резинку" на iOS */
         }
         
         .neon-text {
-            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 40px #00ffff;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
         }
         
-        .explosion {
-            animation: explode 0.6s forwards;
+        /* Улучшенная прокрутка для мобилок */
+        .custom-scroll::-webkit-scrollbar {
+            width: 4px;
         }
-        
-        @keyframes explode {
-            0% { transform: scale(0.5); opacity: 1; }
-            50% { transform: scale(1.8); }
-            100% { transform: scale(2.5); opacity: 0; }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #ec4899;
+            border-radius: 4px;
         }
-        
+
         .card-hover {
-            transition: all 0.3s;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .card-hover:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 30px #ff00ff;
+        .card-hover:active {
+            transform: scale(0.98);
+        }
+        @media (hover: hover) {
+            .card-hover:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 30px -10px #ec4899;
+            }
         }
 
         .card-locked {
             filter: grayscale(100%);
             pointer-events: none;
-            position: relative;
         }
 
         .reel {
-            height: 180px;
+            height: 120px;
             overflow: hidden;
-            border: 4px solid #ffd700;
+            border: 2px solid #ffd700;
             background: #111;
-        }
-
-        .rocket-container {
             position: relative;
-            width: 100%;
-            height: 300px;
-            border-bottom: 2px solid white;
-            border-left: 2px solid white;
-            overflow: hidden;
-            background: rgba(0,0,0,0.5);
+        }
+        @media (min-width: 768px) {
+            .reel { height: 180px; }
         }
 
-        #rocket-obj {
-            position: absolute;
-            width: 60px;
-            bottom: 10px;
-            left: 10px;
-            transition: bottom 0.1s linear, left 0.1s linear;
+        /* Канвас для ракеты */
+        #crash-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
         }
         
         .level-bar {
-            transition: width 0.5s ease-out;
+            transition: width 0.3s ease-out;
+        }
+
+        /* Анимация денег */
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-50px); opacity: 0; }
+        }
+        .float-money {
+            position: absolute;
+            animation: floatUp 1s forwards;
+            color: #34d399;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 50;
         }
     </style>
 </head>
-<body class="bg-zinc-950 text-white overflow-x-hidden">
-    <header class="bg-black border-b-4 border-pink-500 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <img src="main.jpg" class="w-12 h-12 rounded-full border-2 border-pink-500 object-cover">
-                <div>
-                    <h1 class="text-2xl font-bold neon-text tracking-widest">MEOWFLOPR</h1>
-                </div>
-            </div>
-            
-            <div class="flex items-center gap-4 text-[10px] md:text-xs">
-                <div class="flex flex-col items-end mr-4">
-                    <div class="text-pink-400 mb-1">LVL <span id="level-display">1</span></div>
-                    <div class="w-32 h-2 bg-zinc-800 rounded-full overflow-hidden border border-zinc-600">
-                        <div id="xp-bar" class="h-full bg-gradient-to-r from-pink-500 to-purple-500 level-bar" style="width: 0%"></div>
+<body class="bg-zinc-950 text-white min-h-screen flex flex-col">
+
+    <header class="bg-black/90 backdrop-blur-md border-b-2 border-pink-500 sticky top-0 z-40 shadow-lg shadow-pink-500/10">
+        <div class="max-w-7xl mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <img src="main.jpg" class="w-10 h-10 rounded-full border-2 border-pink-500 object-cover shadow-[0_0_10px_#ec4899]">
+                    <div class="hidden sm:block">
+                        <h1 class="text-lg font-bold neon-text tracking-widest text-pink-500">MEOWFLOPR</h1>
                     </div>
                 </div>
 
-                <div id="balance-display" class="bg-zinc-900 px-4 py-2 rounded-full border-2 border-emerald-400 flex items-center gap-2 font-bold">
-                    <span class="text-emerald-400">₽</span>
-                    <span id="balance">10000</span>
-                </div>
-                
-                <div onclick="showProfile()" class="flex items-center gap-2 cursor-pointer hover:opacity-80">
-                    <div id="username-display" class="text-pink-400">ИГРОК</div>
-                    <div class="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center">👤</div>
+                <div class="flex items-center gap-3">
+                    <div class="flex flex-col items-end mr-1">
+                        <div class="text-[10px] text-pink-300 mb-1">LVL <span id="level-display">1</span></div>
+                        <div class="w-20 sm:w-32 h-2 bg-zinc-800 rounded-full overflow-hidden border border-zinc-700">
+                            <div id="xp-bar" class="h-full bg-gradient-to-r from-pink-600 to-purple-600 level-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-zinc-900 pl-3 pr-4 py-1.5 rounded-full border border-emerald-500/50 flex items-center gap-2 shadow-[0_0_15px_-5px_#10b981]">
+                        <span class="text-emerald-400 text-xs">₽</span>
+                        <span id="balance" class="font-bold text-sm sm:text-base">10000</span>
+                    </div>
+                    
+                    <div onclick="showProfile()" class="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center cursor-pointer border border-zinc-700 hover:border-pink-500 active:scale-95 transition">
+                        👤
+                    </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <section id="home" class="relative min-h-screen flex items-center justify-center bg-[radial-gradient(at_center,#4c1d95_0%,#000_70%)] py-20">
-        <div class="text-center z-10 px-6 max-w-4xl w-full">
-            <h1 class="text-4xl md:text-6xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400 mb-8">MEOWFLOPR CASINO</h1>
+    <section id="home" class="flex-1 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,#4c1d9520_0%,#000_100%)] z-0"></div>
+        
+        <div class="z-10 text-center max-w-lg w-full mt-8">
+            <h1 class="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400 mb-2 drop-shadow-lg">
+                MEOWFLOPR
+            </h1>
+            <p class="text-zinc-500 text-[10px] sm:text-xs mb-8 tracking-widest">CASINO & ENTERTAINMENT</p>
             
-            <button onclick="showGames()" class="bg-gradient-to-r from-pink-500 to-purple-600 hover:scale-105 px-10 py-5 text-xl font-bold rounded-xl border-4 border-white transition mb-16 shadow-[0_0_30px_rgba(236,72,153,0.5)]">
+            <button onclick="showGames()" class="w-full sm:w-auto bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 py-4 px-12 text-lg font-bold rounded-2xl shadow-[0_0_20px_rgba(236,72,153,0.4)] active:scale-95 transition mb-12">
                 ИГРАТЬ
             </button>
 
-            <div class="bg-zinc-900/80 border-2 border-yellow-500 rounded-xl p-6 max-w-2xl mx-auto">
-                <h3 class="text-yellow-400 text-xl mb-4">🏆 ТОП БОГАТЕЙШИХ</h3>
-                <div class="space-y-3 text-sm">
-                    <div class="flex justify-between items-center border-b border-zinc-700 pb-2">
+            <div class="bg-zinc-900/80 backdrop-blur border border-yellow-500/30 rounded-2xl p-5 w-full shadow-lg">
+                <h3 class="text-yellow-400 text-sm mb-4 flex items-center justify-center gap-2">
+                    <i class="fas fa-crown"></i> ТОП БОГАТЕЙШИХ
+                </h3>
+                <div class="space-y-3 text-xs sm:text-sm">
+                    <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
                         <div class="flex items-center gap-2">
-                            <span class="text-yellow-500">#1</span>
-                            <span>MeowFlopr</span>
-                            <span class="text-[10px] bg-yellow-500 text-black px-1 rounded">ADMIN</span>
+                            <span class="text-yellow-500 font-bold">1.</span>
+                            <span class="font-bold">MeowFlopr</span>
+                            <span class="text-[8px] bg-yellow-500/20 text-yellow-500 px-1.5 py-0.5 rounded border border-yellow-500/50">DEV</span>
                         </div>
-                        <div class="text-emerald-400">1 488 000 000 ₽</div>
+                        <div class="text-emerald-400 font-mono">1.48B ₽</div>
                     </div>
-                    <div class="flex justify-between items-center border-b border-zinc-700 pb-2 opacity-50">
+                    <div class="flex justify-between items-center text-zinc-400">
                         <div class="flex items-center gap-2">
-                            <span>#2</span>
+                            <span>2.</span>
                             <span>Barbariki</span>
                         </div>
-                        <div class="text-emerald-400">500 000 ₽</div>
+                        <div class="font-mono">500K ₽</div>
                     </div>
-                     <div class="flex justify-between items-center opacity-50">
+                     <div class="flex justify-between items-center text-zinc-500">
                         <div class="flex items-center gap-2">
-                            <span>#3</span>
+                            <span>3.</span>
                             <span>Udalo</span>
                         </div>
-                        <div class="text-emerald-400">12 000 ₽</div>
+                        <div class="font-mono">12K ₽</div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="games" class="max-w-7xl mx-auto px-6 py-12 hidden">
-        <div class="flex justify-between items-center mb-10">
-            <button onclick="showSection('home')" class="text-sm text-zinc-500 hover:text-white">← НАЗАД</button>
-            <h2 class="text-3xl font-bold neon-text">ИГРЫ</h2>
-            <div class="w-10"></div>
-        </div>
+    <section id="games" class="hidden max-w-7xl mx-auto px-4 py-8 w-full">
+        <button onclick="showSection('home')" class="mb-6 text-xs text-zinc-500 hover:text-white flex items-center gap-2 py-2">
+            <i class="fas fa-arrow-left"></i> НАЗАД
+        </button>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div onclick="openSlotsModal()" class="card-hover bg-zinc-900 rounded-3xl overflow-hidden border-4 border-yellow-400 cursor-pointer relative group">
-                <img src="https://cdn.nur.kz/images/1200x675/36135d7df8b99f1afe63116c264a570c.jpeg?version=1" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <h3 class="text-xl font-bold mb-2">СЛОТЫ МЕЛСТРОЯ</h3>
-                    <p class="text-zinc-400 text-xs mb-4">Сложно, но можно.</p>
-                    <div class="text-xs text-yellow-500">LVL 1+</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
+            <div onclick="openSlotsModal()" class="card-hover bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 cursor-pointer group">
+                <div class="h-40 overflow-hidden relative">
+                    <img src="https://cdn.nur.kz/images/1200x675/36135d7df8b99f1afe63116c264a570c.jpeg?version=1" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                    <div class="absolute bottom-0 left-0 bg-yellow-500 text-black text-[10px] font-bold px-2 py-1">LVL 1+</div>
+                </div>
+                <div class="p-4">
+                    <h3 class="text-lg font-bold text-white mb-1">Слоты Мелстроя</h3>
+                    <p class="text-zinc-500 text-[10px]">Классика. Крути и лутай.</p>
                 </div>
             </div>
             
-            <div id="game-epstein" onclick="openEpsteinModal()" class="card-hover bg-zinc-900 rounded-3xl overflow-hidden border-4 border-red-500 cursor-pointer relative">
-                <div class="absolute inset-0 bg-black/80 flex flex-col items-center justify-center z-10 lock-overlay">
-                    <i class="fas fa-lock text-4xl text-zinc-500 mb-2"></i>
-                    <span class="text-red-500 font-bold">ТРЕБУЕТСЯ 5 УРОВЕНЬ</span>
+            <div id="game-epstein" onclick="openEpsteinModal()" class="card-hover bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 cursor-pointer relative group">
+                <div class="lock-overlay absolute inset-0 bg-black/80 flex flex-col items-center justify-center z-10 backdrop-blur-sm hidden">
+                    <i class="fas fa-lock text-2xl text-zinc-600 mb-2"></i>
+                    <span class="text-red-500 font-bold text-xs">НУЖЕН 5 LVL</span>
                 </div>
-                <img src="https://nypost.com/wp-content/uploads/sites/2/2019/08/jeffrey-epstein-2-3.jpg?quality=75&strip=all" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <h3 class="text-xl font-bold text-red-400 mb-2">ОСТРОВ ЭПШТЕЙНА</h3>
-                    <p class="text-zinc-400 text-xs mb-4">Большие ставки - большие риски.</p>
-                    <div class="text-xs text-red-500">LVL 5+</div>
+                <div class="h-40 overflow-hidden relative">
+                    <img src="https://nypost.com/wp-content/uploads/sites/2/2019/08/jeffrey-epstein-2-3.jpg?quality=75&strip=all" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-500">
+                    <div class="absolute bottom-0 left-0 bg-red-600 text-white text-[10px] font-bold px-2 py-1">LVL 5+</div>
+                </div>
+                <div class="p-4">
+                    <h3 class="text-lg font-bold text-red-400 mb-1">Остров Эпштейна</h3>
+                    <p class="text-zinc-500 text-[10px]">Сапер на минном поле.</p>
                 </div>
             </div>
 
-            <div id="game-mrbeast" onclick="openBeastModal()" class="card-hover bg-zinc-900 rounded-3xl overflow-hidden border-4 border-blue-500 cursor-pointer relative">
-                <div class="absolute inset-0 bg-black/80 flex flex-col items-center justify-center z-10 lock-overlay">
-                    <i class="fas fa-lock text-4xl text-zinc-500 mb-2"></i>
-                    <span class="text-blue-500 font-bold">ТРЕБУЕТСЯ 10 УРОВЕНЬ</span>
+            <div id="game-mrbeast" onclick="openBeastModal()" class="card-hover bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 cursor-pointer relative group">
+                <div class="lock-overlay absolute inset-0 bg-black/80 flex flex-col items-center justify-center z-10 backdrop-blur-sm hidden">
+                    <i class="fas fa-lock text-2xl text-zinc-600 mb-2"></i>
+                    <span class="text-blue-500 font-bold text-xs">НУЖЕН 10 LVL</span>
                 </div>
-                <img src="mrbeast.jpg" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <h3 class="text-xl font-bold text-blue-400 mb-2">BEAST CRASH</h3>
-                    <p class="text-zinc-400 text-xs mb-4">Успей забрать до взрыва.</p>
-                    <div class="text-xs text-blue-500">LVL 10+</div>
+                <div class="h-40 overflow-hidden relative">
+                    <img src="mrbeast.jpg" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-500">
+                    <div class="absolute bottom-0 left-0 bg-blue-600 text-white text-[10px] font-bold px-2 py-1">LVL 10+</div>
+                </div>
+                <div class="p-4">
+                    <h3 class="text-lg font-bold text-blue-400 mb-1">Beast Crash</h3>
+                    <p class="text-zinc-500 text-[10px]">Успей забрать до взрыва!</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <div id="login-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-[100]">
-        <div class="bg-zinc-900 border-2 border-pink-500 rounded-3xl p-8 max-w-sm w-full mx-4">
-            <h2 class="text-2xl text-center mb-6">КТО ТЫ, ВОИН?</h2>
-            <input id="username-input" type="text" placeholder="ТВОЙ НИК" class="w-full bg-black border border-pink-400 px-4 py-3 text-lg focus:outline-none rounded-xl mb-4">
-            <button onclick="login()" class="w-full bg-pink-600 hover:bg-pink-700 py-4 font-bold rounded-xl transition">ПОГНАЛИ</button>
+    <div id="login-modal" class="fixed inset-0 bg-black/95 flex items-center justify-center hidden z-[60] px-4">
+        <div class="bg-zinc-900 border border-pink-500/50 rounded-3xl p-6 w-full max-w-xs shadow-[0_0_50px_rgba(236,72,153,0.2)]">
+            <h2 class="text-xl text-center mb-6 font-bold text-white">ВВЕДИ НИК</h2>
+            <input id="username-input" type="text" placeholder="User123" class="w-full bg-black border border-zinc-700 px-4 py-3 text-sm focus:outline-none focus:border-pink-500 rounded-xl mb-4 text-white">
+            <button onclick="login()" class="w-full bg-pink-600 py-3 font-bold rounded-xl text-sm hover:bg-pink-500 transition">СТАРТ</button>
         </div>
     </div>
 
-    <div id="slots-modal" class="fixed inset-0 bg-black/95 flex items-center justify-center hidden z-[100] overflow-y-auto">
-        <div class="bg-zinc-950 border-4 border-yellow-400 rounded-3xl p-6 max-w-3xl w-full mx-4 my-8">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl md:text-3xl text-yellow-400">СЛОТЫ МЕЛСТРОЯ</h2>
-                <button onclick="closeModal('slots-modal')" class="text-2xl">✕</button>
+    <div id="slots-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-zinc-950 border-2 border-yellow-500 rounded-2xl w-full max-w-lg flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center p-4 border-b border-zinc-800">
+                <h2 class="text-sm md:text-lg text-yellow-500 font-bold">СЛОТЫ МЕЛСТРОЯ</h2>
+                <button onclick="closeModal('slots-modal')" class="w-8 h-8 flex items-center justify-center rounded-full bg-zinc-800 hover:bg-zinc-700">✕</button>
             </div>
             
-            <div class="flex justify-center gap-2 md:gap-4 mb-6">
-                <div id="reel1" class="reel w-24 md:w-32 flex items-center justify-center bg-black rounded border-2 border-yellow-600"></div>
-                <div id="reel2" class="reel w-24 md:w-32 flex items-center justify-center bg-black rounded border-2 border-yellow-600"></div>
-                <div id="reel3" class="reel w-24 md:w-32 flex items-center justify-center bg-black rounded border-2 border-yellow-600"></div>
-            </div>
-            
-            <div id="bet-container-slots" class="mb-6">
-                <div class="grid grid-cols-4 gap-2 mb-2 standard-bets">
-                    <button onclick="setBet(100)" class="bg-zinc-800 p-2 rounded hover:bg-zinc-700 text-xs">100</button>
-                    <button onclick="setBet(500)" class="bg-zinc-800 p-2 rounded hover:bg-zinc-700 text-xs">500</button>
-                    <button onclick="setBet(1000)" class="bg-zinc-800 p-2 rounded hover:bg-zinc-700 text-xs">1K</button>
-                    <button onclick="setBet(5000)" class="bg-zinc-800 p-2 rounded hover:bg-zinc-700 text-xs">5K</button>
-                </div>
-                <div class="custom-bet-div hidden">
-                    <input type="number" id="custom-bet-slots" placeholder="Своя ставка" class="w-full bg-black border border-pink-500 p-3 rounded mb-2 text-center" onchange="setCustomBet(this.value)">
-                </div>
-            </div>
-            
-            <div class="text-center">
-                <div class="text-xl mb-4">СТАВКА: <span id="current-bet-display" class="text-yellow-400">100</span> ₽</div>
-                <button onclick="spinSlots()" id="spin-button" class="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-black text-2xl font-bold py-4 rounded-xl hover:scale-105 active:scale-95 transition shadow-lg shadow-orange-500/20">КРУТИТЬ</button>
-            </div>
-            <div id="slots-result" class="text-center text-xl mt-4 min-h-[40px] font-bold"></div>
-        </div>
-    </div>
-
-    <div id="epstein-modal" class="fixed inset-0 bg-black/95 flex items-center justify-center hidden z-[100] overflow-y-auto">
-        <div class="bg-zinc-950 border-4 border-red-600 rounded-3xl p-6 max-w-4xl w-full mx-4 my-8">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl md:text-3xl text-red-500">ОСТРОВ ЭПШТЕЙНА</h2>
-                <button onclick="closeModal('epstein-modal')" class="text-2xl">✕</button>
-            </div>
-            
-            <div class="flex flex-col md:flex-row gap-6">
-                <div class="w-full md:w-1/3">
-                    <div class="mb-2 text-sm text-zinc-400">СТАВКА</div>
-                    <div class="grid grid-cols-2 gap-2 mb-4 standard-bets">
-                        <button onclick="setGameBet('epstein', 1000)" class="bet-btn-epstein bg-zinc-800 p-3 rounded hover:bg-red-900 text-xs">1K</button>
-                        <button onclick="setGameBet('epstein', 5000)" class="bet-btn-epstein bg-zinc-800 p-3 rounded hover:bg-red-900 text-xs">5K</button>
-                        <button onclick="setGameBet('epstein', 10000)" class="bet-btn-epstein bg-zinc-800 p-3 rounded hover:bg-red-900 text-xs">10K</button>
-                        <button onclick="setGameBet('epstein', 25000)" class="bet-btn-epstein bg-zinc-800 p-3 rounded hover:bg-red-900 text-xs">25K</button>
-                    </div>
-                    <div class="custom-bet-div hidden mb-4">
-                        <input type="number" id="custom-bet-epstein" placeholder="Сумма" class="w-full bg-black border border-red-500 p-3 rounded text-center" onchange="setCustomBetGeneric('epstein', this.value)">
-                    </div>
-
-                    <div class="text-center mb-4 text-sm">В ИГРЕ: <span id="epstein-current-bet">0</span> ₽</div>
-                    
-                    <button onclick="startEpstein()" id="start-epstein-btn" class="w-full bg-red-600 py-4 font-bold rounded-xl mb-4 hover:bg-red-500">СТАРТ</button>
-                    
-                    <div id="epstein-stats" class="hidden">
-                        <div class="text-emerald-400 text-xl font-bold text-center mb-2">+<span id="epstein-win-amount">0</span> ₽</div>
-                        <button onclick="cashoutEpstein()" class="w-full bg-emerald-600 py-3 font-bold rounded-xl animate-pulse">ЗАБРАТЬ</button>
-                    </div>
+            <div class="overflow-y-auto custom-scroll p-4 flex-1">
+                <div class="flex justify-center gap-2 mb-6">
+                    <div id="reel1" class="reel flex-1 rounded-lg"></div>
+                    <div id="reel2" class="reel flex-1 rounded-lg"></div>
+                    <div id="reel3" class="reel flex-1 rounded-lg"></div>
                 </div>
                 
-                <div class="w-full md:w-2/3">
-                    <div id="epstein-grid" class="grid grid-cols-4 gap-2"></div>
+                <div class="bg-zinc-900 rounded-xl p-3 mb-4">
+                    <div class="grid grid-cols-4 gap-2 mb-2 standard-bets">
+                        <button onclick="setBet(100)" class="bet-btn bg-zinc-800 py-2 rounded-lg text-[10px] hover:bg-zinc-700 border border-zinc-700">100</button>
+                        <button onclick="setBet(500)" class="bet-btn bg-zinc-800 py-2 rounded-lg text-[10px] hover:bg-zinc-700 border border-zinc-700">500</button>
+                        <button onclick="setBet(1000)" class="bet-btn bg-zinc-800 py-2 rounded-lg text-[10px] hover:bg-zinc-700 border border-zinc-700">1K</button>
+                        <button onclick="setBet(5000)" class="bet-btn bg-zinc-800 py-2 rounded-lg text-[10px] hover:bg-zinc-700 border border-zinc-700">5K</button>
+                    </div>
+                    <div class="custom-bet-div hidden">
+                        <input type="number" placeholder="Ставка..." class="w-full bg-black border border-zinc-700 p-2 rounded-lg text-center text-sm" onchange="setCustomBet(this.value)">
+                    </div>
+                    <div class="text-center text-xs text-zinc-400 mt-2">Ставка: <span id="current-bet-display" class="text-white font-bold">100</span> ₽</div>
+                </div>
+
+                <div id="slots-result" class="h-8 text-center text-sm font-bold mb-2"></div>
+                
+                <button onclick="spinSlots()" id="spin-button" class="w-full bg-gradient-to-b from-yellow-500 to-orange-600 text-black font-bold py-4 rounded-xl shadow-lg active:scale-95 transition text-lg">
+                    КРУТИТЬ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="epstein-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-zinc-950 border-2 border-red-600 rounded-2xl w-full max-w-lg flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center p-4 border-b border-zinc-800">
+                <h2 class="text-sm md:text-lg text-red-500 font-bold">ОСТРОВ ЭПШТЕЙНА</h2>
+                <button onclick="closeModal('epstein-modal')" class="w-8 h-8 flex items-center justify-center rounded-full bg-zinc-800 hover:bg-zinc-700">✕</button>
+            </div>
+            
+            <div class="overflow-y-auto custom-scroll p-4 flex-1">
+                <div class="grid grid-cols-4 gap-2 aspect-square mb-6" id="epstein-grid">
+                    </div>
+
+                <div class="bg-zinc-900 rounded-xl p-3">
+                    <div id="epstein-controls">
+                        <div class="grid grid-cols-4 gap-2 mb-3 standard-bets">
+                            <button onclick="setGameBet('epstein', 1000)" class="bet-btn-epstein bg-zinc-800 py-2 rounded-lg text-[10px]">1K</button>
+                            <button onclick="setGameBet('epstein', 5000)" class="bet-btn-epstein bg-zinc-800 py-2 rounded-lg text-[10px]">5K</button>
+                            <button onclick="setGameBet('epstein', 10000)" class="bet-btn-epstein bg-zinc-800 py-2 rounded-lg text-[10px]">10K</button>
+                            <button onclick="setGameBet('epstein', 25000)" class="bet-btn-epstein bg-zinc-800 py-2 rounded-lg text-[10px]">25K</button>
+                        </div>
+                        <div class="custom-bet-div hidden mb-3">
+                            <input type="number" class="w-full bg-black border border-zinc-700 p-2 rounded-lg text-center text-sm" placeholder="Сумма" onchange="setCustomBetGeneric('epstein', this.value)">
+                        </div>
+                        <button onclick="startEpstein()" class="w-full bg-red-600 py-3 rounded-xl font-bold">СТАРТ</button>
+                    </div>
+
+                    <div id="epstein-cashout-ui" class="hidden">
+                        <div class="text-center mb-2">
+                            <div class="text-xs text-zinc-400">ВЫИГРЫШ</div>
+                            <div class="text-xl text-emerald-400 font-bold">+<span id="epstein-win-amount">0</span></div>
+                        </div>
+                        <button onclick="cashoutEpstein()" class="w-full bg-emerald-600 py-3 rounded-xl font-bold animate-pulse">ЗАБРАТЬ</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="beast-modal" class="fixed inset-0 bg-black/95 flex items-center justify-center hidden z-[100]">
-        <div class="bg-zinc-950 border-4 border-blue-500 rounded-3xl p-6 max-w-2xl w-full mx-4">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl md:text-2xl text-blue-400">MRBEAST CRASH</h2>
-                <button onclick="closeModal('beast-modal')" class="text-2xl">✕</button>
+    <div id="beast-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-zinc-950 border-2 border-blue-600 rounded-2xl w-full max-w-lg flex flex-col max-h-[95vh]">
+            <div class="flex justify-between items-center p-4 border-b border-zinc-800">
+                <h2 class="text-sm md:text-lg text-blue-500 font-bold">BEAST CRASH</h2>
+                <button onclick="closeModal('beast-modal')" class="w-8 h-8 flex items-center justify-center rounded-full bg-zinc-800 hover:bg-zinc-700">✕</button>
             </div>
-
-            <div class="rocket-container rounded-xl mb-6 relative bg-gradient-to-b from-slate-900 to-black">
-                <div class="absolute top-4 right-4 text-4xl font-bold z-10" id="crash-multiplier">1.00x</div>
-                <img src="raketmrbeast.jpg" id="rocket-obj" class="rounded-full shadow-[0_0_20px_#3b82f6]">
-                <div id="crash-message" class="absolute inset-0 flex items-center justify-center text-3xl font-bold bg-black/80 hidden text-red-500">CRASHED!</div>
-            </div>
-
-            <div class="flex gap-4 items-end">
-                <div class="flex-1">
-                    <label class="text-xs text-zinc-500 block mb-1">СТАВКА</label>
-                    <div class="flex gap-2 mb-2 standard-bets">
-                         <button onclick="setGameBet('beast', 1000)" class="flex-1 bg-zinc-800 py-2 rounded text-xs hover:bg-blue-900">1K</button>
-                         <button onclick="setGameBet('beast', 5000)" class="flex-1 bg-zinc-800 py-2 rounded text-xs hover:bg-blue-900">5K</button>
+            
+            <div class="p-2 flex-1 flex flex-col">
+                <div class="relative bg-zinc-900 rounded-xl border border-zinc-800 w-full h-64 mb-4 overflow-hidden">
+                    <canvas id="crash-canvas"></canvas>
+                    
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span id="crash-multiplier" class="text-4xl font-bold text-white drop-shadow-md">1.00x</span>
                     </div>
-                     <div class="custom-bet-div hidden mb-2">
-                        <input type="number" id="custom-bet-beast" placeholder="Сумма" class="w-full bg-black border border-blue-500 p-2 rounded text-center" onchange="setCustomBetGeneric('beast', this.value)">
+
+                    <div id="crash-overlay" class="absolute inset-0 bg-black/80 flex items-center justify-center hidden">
+                        <div class="text-center">
+                            <div class="text-red-500 text-3xl font-black mb-1">CRASHED</div>
+                            <div class="text-zinc-400 text-sm">@ <span id="crash-final-val">1.00</span>x</div>
+                        </div>
                     </div>
                 </div>
-                <div class="flex-1">
-                    <button id="beast-action-btn" onclick="startBeast()" class="w-full h-14 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold text-xl">СТАРТ</button>
+
+                <div class="bg-zinc-900 rounded-xl p-3 mt-auto">
+                    <div class="flex gap-3 mb-3">
+                        <div class="flex-1">
+                            <div class="text-[10px] text-zinc-500 mb-1">СТАВКА</div>
+                            <div class="flex gap-1 standard-bets">
+                                <button onclick="setGameBet('beast', 1000)" class="flex-1 bg-zinc-800 py-2 rounded text-[10px] hover:bg-blue-900 transition bet-btn-beast">1K</button>
+                                <button onclick="setGameBet('beast', 5000)" class="flex-1 bg-zinc-800 py-2 rounded text-[10px] hover:bg-blue-900 transition bet-btn-beast">5K</button>
+                            </div>
+                            <div class="custom-bet-div hidden">
+                                <input type="number" class="w-full bg-black border border-zinc-700 p-2 rounded text-center text-sm" onchange="setCustomBetGeneric('beast', this.value)">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="beast-action-btn" onclick="startBeast()" class="w-full h-12 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold text-lg shadow-[0_0_15px_rgba(37,99,235,0.4)] transition">
+                        СТАРТ
+                    </button>
                 </div>
             </div>
-            <div class="text-center text-xs text-zinc-500 mt-2">Ракета может упасть в любой момент.</div>
         </div>
     </div>
 
     <script>
+        // === КОНФИГУРАЦИЯ И ДАННЫЕ ===
         let user = {
             username: "ИГРОК",
             balance: 10000,
             level: 1,
-            xp: 99999,
-            maxXp: 400
-        };
-
-        let currentBets = {
-            slots: 100,
-            epstein: 1000,
-            beast: 1000
+            xp: 0,
+            maxXp: 200 // Уменьшено для быстрого старта (было 1000)
         };
 
         const symbols = [
             { name: "banana", url: "https://avatars.mds.yandex.net/get-mpic/5234083/img_id3506543352633991634.png/orig" },
             { name: "plum", url: "https://main-cdn.sbermegamarket.ru/big1/hlr-system/-90/257/429/371/118/48/100032397594b0.jpg" },
-            { name: "grape", url: "https://avatars.mds.yandex.net/get-mpic/5145248/img_id4537599123360367823.png/orig" },
-            { name: "melstroy", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/1024px-No_image_available.svg.png" } 
-        ]; 
+            { name: "grape", url: "https://avatars.mds.yandex.net/get-mpic/5145248/img_id4537599123360367823.png/orig" }
+        ];
 
+        let currentBets = { slots: 100, epstein: 1000, beast: 1000 };
         let epsteinState = { active: false, winnings: 0, bet: 0 };
-        let beastState = { active: false, multiplier: 1.00, interval: null, bet: 0 };
+        
+        // Переменные для ракеты
+        let beastState = { active: false, multiplier: 1.00, bet: 0, startTime: 0, animationId: null, crashed: false };
+        const rocketImg = new Image(); rocketImg.src = 'raketmrbeast.jpg';
+        const canvas = document.getElementById('crash-canvas');
+        const ctx = canvas.getContext('2d');
+        let graphPoints = [];
 
+        // === ИНИЦИАЛИЗАЦИЯ ===
         window.onload = function() {
             loadUser();
-            if (!localStorage.getItem("mf_user_v2")) {
+            if (!localStorage.getItem("mf_user_v3")) {
                 document.getElementById("login-modal").classList.remove("hidden");
             }
             showSection('home');
-            checkLocks();
+            
+            // Настройка канваса
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
         };
 
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = canvas.parentElement.offsetHeight;
+            if(!beastState.active) drawBeastIdle();
+        }
+
+        // === СИСТЕМА СОХРАНЕНИЯ И ОПЫТА ===
         function loadUser() {
-            const saved = localStorage.getItem("mf_user_v2");
+            const saved = localStorage.getItem("mf_user_v3");
             if (saved) user = JSON.parse(saved);
             updateUI();
         }
 
         function saveUser() {
-            localStorage.setItem("mf_user_v2", JSON.stringify(user));
+            localStorage.setItem("mf_user_v3", JSON.stringify(user));
             updateUI();
         }
 
         function updateUI() {
             document.getElementById("balance").textContent = Math.floor(user.balance).toLocaleString("ru-RU");
-            document.getElementById("username-display").textContent = user.username;
+            document.getElementById("username-display").textContent = user.username; // для профиля
             document.getElementById("level-display").textContent = user.level;
             
-            const xpPercent = (user.xp / user.maxXp) * 100;
+            const xpPercent = Math.min((user.xp / user.maxXp) * 100, 100);
             document.getElementById("xp-bar").style.width = `${xpPercent}%`;
             
             checkLocks();
             checkCustomBets();
         }
 
-        function addXp(amount) {
-            user.xp += amount;
-            if (user.xp >= user.maxXp) {
+        function addXp(betAmount) {
+            // Ускоренная прокачка:
+            // Минимум 30 опыта, плюс 5% от ставки.
+            const xpGain = Math.floor(30 + (betAmount * 0.05));
+            
+            user.xp += xpGain;
+            
+            // Проверка повышения уровня (while на случай двойного апа)
+            while (user.xp >= user.maxXp) {
                 user.level++;
-                user.xp = user.xp - user.maxXp;
-                user.maxXp = Math.floor(user.maxXp * 1.5);
-                alert(`🎉 УРОВЕНЬ ПОВЫШЕН! ТЕПЕРЬ ТЫ ${user.level} LVL`);
+                user.xp -= user.maxXp;
+                user.maxXp = Math.floor(user.maxXp * 1.3); // Растет медленнее (было 1.5)
+                showFloatingText(`УРОВЕНЬ ${user.level}!`, window.innerWidth/2, window.innerHeight/2, '#ff00ff');
             }
             saveUser();
         }
 
-        function checkLocks() {
-            const epstein = document.getElementById("game-epstein");
-            const beast = document.getElementById("game-mrbeast");
-            
-            if (user.level >= 5) {
-                epstein.querySelector(".lock-overlay").classList.add("hidden");
-                epstein.classList.remove("card-locked");
-            } else {
-                epstein.querySelector(".lock-overlay").classList.remove("hidden");
-                epstein.classList.add("card-locked");
-            }
+        function showFloatingText(text, x, y, color) {
+            const el = document.createElement("div");
+            el.className = "float-money fixed text-2xl font-bold z-[100]";
+            el.style.left = x + "px";
+            el.style.top = y + "px";
+            el.style.color = color;
+            el.textContent = text;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1000);
+        }
 
-            if (user.level >= 10) {
-                beast.querySelector(".lock-overlay").classList.add("hidden");
-                beast.classList.remove("card-locked");
-            } else {
-                beast.querySelector(".lock-overlay").classList.remove("hidden");
-                beast.classList.add("card-locked");
-            }
+        function checkLocks() {
+            const toggleLock = (id, lvl) => {
+                const el = document.getElementById(id);
+                const lock = el.querySelector(".lock-overlay");
+                if (user.level >= lvl) {
+                    lock.classList.add("hidden");
+                    el.classList.remove("card-locked");
+                } else {
+                    lock.classList.remove("hidden");
+                    el.classList.add("card-locked");
+                }
+            };
+            toggleLock("game-epstein", 5);
+            toggleLock("game-mrbeast", 10);
         }
 
         function checkCustomBets() {
@@ -393,13 +458,14 @@
             }
         }
 
+        // === НАВИГАЦИЯ ===
         function login() {
-            const input = document.getElementById("username-input").value.trim();
-            if (input) user.username = input.toUpperCase();
+            const val = document.getElementById("username-input").value.trim();
+            if(val) user.username = val;
             document.getElementById("login-modal").classList.add("hidden");
             saveUser();
         }
-
+        
         function showSection(id) {
             document.getElementById("home").classList.add("hidden");
             document.getElementById("games").classList.add("hidden");
@@ -407,38 +473,30 @@
         }
         function showGames() { showSection("games"); }
         function showProfile() {
-            const n = prompt("Новый ник:", user.username);
-            if(n) { user.username = n.toUpperCase(); saveUser(); }
+            const n = prompt("Сменить ник:", user.username);
+            if(n) { user.username = n; saveUser(); }
         }
-
-        function setBet(amount) {
-            currentBets.slots = parseInt(amount);
-            document.getElementById("current-bet-display").textContent = amount;
-        }
-
-        function setGameBet(game, amount) {
-            currentBets[game] = parseInt(amount);
-            document.querySelectorAll(`.bet-btn-${game}`).forEach(btn => {
-                btn.classList.toggle('bg-zinc-600', parseInt(btn.innerText.replace('K','000')) === amount);
-            });
-        }
-
-        function setCustomBet(val) {
-            currentBets.slots = parseInt(val) || 100;
-            document.getElementById("current-bet-display").textContent = currentBets.slots;
-        }
-
-        function setCustomBetGeneric(game, val) {
-            currentBets[game] = parseInt(val) || 1000;
-        }
-
         function closeModal(id) {
             document.getElementById(id).classList.add("hidden");
-            if(id === 'beast-modal' && beastState.active) {
-                forceStopBeast();
-            }
+            if(id === 'beast-modal' && beastState.active) beastCashout(); // Автовывод если закрыли
         }
 
+        // === СТАВКИ ===
+        function setBet(amount) {
+            currentBets.slots = amount;
+            document.getElementById("current-bet-display").textContent = amount;
+        }
+        function setGameBet(game, amount) {
+            currentBets[game] = amount;
+            if(game === 'beast') {
+                document.querySelectorAll('.bet-btn-beast').forEach(b => b.classList.remove('bg-blue-600', 'text-white'));
+                event.target.classList.add('bg-blue-600', 'text-white');
+            }
+        }
+        function setCustomBet(val) { currentBets.slots = parseInt(val) || 100; document.getElementById("current-bet-display").textContent = currentBets.slots; }
+        function setCustomBetGeneric(game, val) { currentBets[game] = parseInt(val) || 1000; }
+
+        // === ИГРА: СЛОТЫ ===
         function openSlotsModal() {
             document.getElementById("slots-modal").classList.remove("hidden");
             document.getElementById("slots-result").innerHTML = "";
@@ -446,77 +504,67 @@
         }
 
         function spinSlots() {
-            const bet = currentBets.slots;
-            if (user.balance < bet) return alert("Нет денег!");
-            
-            user.balance -= bet;
-            addXp(Math.max(10, Math.floor(bet / 100)));
+            if(user.balance < currentBets.slots) return alert("Недостаточно денег!");
+            user.balance -= currentBets.slots;
+            addXp(currentBets.slots);
             saveUser();
 
             const btn = document.getElementById("spin-button");
             btn.disabled = true;
             btn.classList.add("opacity-50");
-            document.getElementById("slots-result").innerHTML = "";
+            document.getElementById("slots-result").textContent = "";
 
-            const reels = [1,2,3];
-            let finalRes = [];
+            // Шансы: 8% джекпот, 25% пара
+            let r = Math.random();
+            let res = [];
+            if(r < 0.08) res = [0,0,0]; 
+            else if(r < 0.33) res = [0,0,1];
+            else res = [0,1,2];
+            
+            // Перемешиваем типы символов
+            const map = [0,1,2].sort(()=>Math.random()-0.5);
+            const final = res.map(i => symbols[map[i]]); // Применяем рандомные картинки к паттерну
 
-            // Усложненная логика: генерируем результат ЗАРАНЕЕ
-            let rand = Math.random();
-            let outcome = "lose";
-            if (rand < 0.05) outcome = "jackpot"; // 5% на джекпот
-            else if (rand < 0.20) outcome = "pair"; // 15% на пару
-
-            let sym1, sym2, sym3;
-            if (outcome === "jackpot") {
-                sym1 = sym2 = sym3 = Math.floor(Math.random() * 3);
-            } else if (outcome === "pair") {
-                sym1 = Math.floor(Math.random() * 3);
-                sym2 = sym1;
-                sym3 = (sym1 + 1) % 3;
-            } else {
-                sym1 = Math.floor(Math.random() * 3);
-                sym2 = (sym1 + 1) % 3;
-                sym3 = Math.floor(Math.random() * 3);
-            }
-            finalRes = [symbols[sym1], symbols[sym2], symbols[sym3]];
-
-            reels.forEach((r, i) => {
-                let el = document.getElementById(`reel${r}`);
+            [1,2,3].forEach((reel, i) => {
+                const el = document.getElementById(`reel${reel}`);
                 let count = 0;
                 let interval = setInterval(() => {
-                    el.innerHTML = `<img src="${symbols[Math.floor(Math.random()*3)].url}" class="w-full h-full object-contain filter blur-sm">`;
+                    el.innerHTML = `<img src="${symbols[Math.floor(Math.random()*3)].url}" class="w-full h-full object-contain blur-[2px]">`;
                     count++;
                     if(count > 10 + (i*5)) {
                         clearInterval(interval);
-                        el.innerHTML = `<img src="${finalRes[i].url}" class="w-full h-full object-contain">`;
-                        if(i===2) checkSlotsWin(finalRes);
+                        el.innerHTML = `<img src="${final[i].url}" class="w-full h-full object-contain">`;
+                        if(i===2) checkSlotsWin(final);
                     }
-                }, 100);
+                }, 80);
             });
         }
 
         function checkSlotsWin(res) {
-            const bet = currentBets.slots;
             const btn = document.getElementById("spin-button");
-            const disp = document.getElementById("slots-result");
             btn.disabled = false;
             btn.classList.remove("opacity-50");
-
-            if(res[0].name === res[1].name && res[1].name === res[2].name) {
-                const win = bet * 20; 
+            
+            const isJackpot = res[0].name === res[1].name && res[1].name === res[2].name;
+            const isPair = res[0].name === res[1].name || res[1].name === res[2].name || res[0].name === res[2].name;
+            
+            const div = document.getElementById("slots-result");
+            
+            if(isJackpot) {
+                const win = currentBets.slots * 15;
                 user.balance += win;
-                disp.innerHTML = `<span class="text-emerald-400">ДЖЕКПОТ! +${win}</span>`;
-            } else if (res[0].name === res[1].name || res[1].name === res[2].name || res[0].name === res[2].name) {
-                const win = bet * 2;
+                div.innerHTML = `<span class="text-emerald-400">ДЖЕКПОТ! +${win}</span>`;
+            } else if(isPair) {
+                const win = currentBets.slots * 2;
                 user.balance += win;
-                disp.innerHTML = `<span class="text-emerald-400">ПАРА! +${win}</span>`;
+                div.innerHTML = `<span class="text-emerald-400">ПАРА! +${win}</span>`;
             } else {
-                disp.innerHTML = `<span class="text-red-500">ПУСТО...</span>`;
+                div.innerHTML = `<span class="text-zinc-500">Попробуй еще...</span>`;
             }
             saveUser();
         }
 
+        // === ИГРА: ЭПШТЕЙН ===
         function openEpsteinModal() {
             if(user.level < 5) return;
             document.getElementById("epstein-modal").classList.remove("hidden");
@@ -526,171 +574,260 @@
         function resetEpstein() {
             epsteinState = { active: false, winnings: 0, bet: 0 };
             document.getElementById("epstein-grid").innerHTML = "";
-            document.getElementById("start-epstein-btn").disabled = false;
-            document.getElementById("start-epstein-btn").classList.remove("hidden");
-            document.getElementById("epstein-stats").classList.add("hidden");
-            document.getElementById("epstein-current-bet").textContent = "0";
+            document.getElementById("epstein-controls").querySelector("button:last-child").classList.remove("hidden"); // Показать старт
+            document.getElementById("epstein-cashout-ui").classList.add("hidden");
             
+            // Рисуем пустую сетку
             for(let i=0; i<16; i++) {
                 const d = document.createElement("div");
-                d.className = "aspect-square bg-zinc-800 rounded-xl border-2 border-zinc-700 flex items-center justify-center text-2xl cursor-not-allowed opacity-50";
-                d.innerHTML = "?";
+                d.className = "bg-zinc-800 rounded-xl border border-zinc-700 flex items-center justify-center text-zinc-600";
+                d.innerHTML = '<i class="fas fa-question"></i>';
                 document.getElementById("epstein-grid").appendChild(d);
             }
         }
 
         function startEpstein() {
-            const bet = currentBets.epstein;
-            if(user.balance < bet) return alert("Нет денег!");
-            
-            user.balance -= bet;
-            epsteinState.bet = bet;
-            epsteinState.active = true;
-            addXp(Math.max(20, Math.floor(bet / 50)));
+            if(user.balance < currentBets.epstein) return alert("Мало денег!");
+            user.balance -= currentBets.epstein;
+            addXp(currentBets.epstein);
             saveUser();
 
-            document.getElementById("epstein-current-bet").textContent = bet;
-            document.getElementById("start-epstein-btn").classList.add("hidden");
-            document.getElementById("epstein-stats").classList.remove("hidden");
+            epsteinState.active = true;
+            epsteinState.bet = currentBets.epstein;
+            
+            // UI переключение
+            document.getElementById("epstein-controls").querySelector("button:last-child").classList.add("hidden");
+            document.getElementById("epstein-cashout-ui").classList.remove("hidden");
             document.getElementById("epstein-win-amount").textContent = "0";
 
             const grid = document.getElementById("epstein-grid");
             grid.innerHTML = "";
             
-            let bombs = Array(4).fill("bomb").concat(Array(12).fill("safe")).sort(()=>Math.random()-0.5);
+            // 3 Бомбы, остальное деньги
+            let types = Array(3).fill("bomb").concat(Array(13).fill("safe")).sort(()=>Math.random()-0.5);
 
-            bombs.forEach(type => {
-                const cell = document.createElement("div");
-                cell.className = "aspect-square bg-zinc-800 rounded-xl border-2 border-zinc-700 flex items-center justify-center text-2xl cursor-pointer hover:border-red-500 transition";
-                cell.innerHTML = "🏝️";
-                cell.onclick = () => clickEpsteinCell(cell, type);
-                grid.appendChild(cell);
+            types.forEach(type => {
+                const btn = document.createElement("button");
+                btn.className = "bg-zinc-800 rounded-xl border border-zinc-700 flex items-center justify-center text-xl hover:border-pink-500 transition active:scale-95";
+                btn.innerHTML = "🌴";
+                btn.onclick = () => clickEpstein(btn, type);
+                grid.appendChild(btn);
             });
         }
 
-        function clickEpsteinCell(cell, type) {
-            if(!epsteinState.active || cell.classList.contains("revealed")) return;
-            cell.classList.add("revealed");
+        function clickEpstein(btn, type) {
+            if(!epsteinState.active || btn.disabled) return;
+            btn.disabled = true;
 
             if(type === "bomb") {
-                cell.innerHTML = "💥";
-                cell.className = "aspect-square bg-red-900 rounded-xl border-2 border-red-500 flex items-center justify-center text-4xl explosion";
+                btn.className = "bg-red-900 border-red-500 rounded-xl flex items-center justify-center text-2xl animate-pulse";
+                btn.innerHTML = "💣";
                 epsteinState.active = false;
                 setTimeout(() => {
-                    alert("БУМ! Эпштейн тебя поймал. Все сгорело.");
+                    alert("ВАС ПОЙМАЛИ! Деньги сгорели.");
                     resetEpstein();
-                }, 500);
+                }, 300);
             } else {
-                const prize = Math.floor(Math.random() * 8000) + 2000;
+                // Выигрыш от 50% до 150% ставки за клетку (увеличил доходность)
+                const prize = Math.floor(epsteinState.bet * (Math.random() + 0.5));
                 epsteinState.winnings += prize;
-                document.getElementById("epstein-win-amount").textContent = epsteinState.winnings;
+                document.getElementById("epstein-win-amount").textContent = epsteinState.winnings.toLocaleString();
                 
-                cell.innerHTML = `<div class="text-center"><div class="text-2xl">💰</div><div class="text-[10px] text-green-400">+${prize}</div></div>`;
-                cell.className = "aspect-square bg-green-900 rounded-xl border-2 border-green-500 flex items-center justify-center";
+                btn.className = "bg-emerald-900 border-emerald-500 rounded-xl flex flex-col items-center justify-center";
+                btn.innerHTML = `<span class="text-xs text-emerald-300">+${Math.floor(prize/1000)}k</span>`;
             }
         }
 
         function cashoutEpstein() {
             if(!epsteinState.active) return;
             user.balance += epsteinState.winnings;
-            epsteinState.active = false;
+            alert(`Вывели: ${epsteinState.winnings} ₽`);
             saveUser();
-            alert(`Вы вынесли с острова ${epsteinState.winnings} ₽!`);
             resetEpstein();
         }
 
+        // === ИГРА: BEAST CRASH (CANVAS) ===
         function openBeastModal() {
             if(user.level < 10) return;
             document.getElementById("beast-modal").classList.remove("hidden");
-            resetBeast();
+            resizeCanvas();
+            resetBeastUI();
         }
 
-        function resetBeast() {
-            beastState = { active: false, multiplier: 1.00, interval: null, bet: 0 };
-            document.getElementById("crash-multiplier").textContent = "1.00x";
-            document.getElementById("crash-multiplier").className = "absolute top-4 right-4 text-4xl font-bold z-10 text-white";
-            document.getElementById("crash-message").classList.add("hidden");
-            document.getElementById("rocket-obj").style.bottom = "10px";
-            document.getElementById("rocket-obj").style.left = "10px";
-            
+        function resetBeastUI() {
             const btn = document.getElementById("beast-action-btn");
             btn.textContent = "СТАРТ";
             btn.classList.remove("bg-emerald-500");
             btn.classList.add("bg-blue-600");
             btn.disabled = false;
+            document.getElementById("crash-multiplier").className = "text-4xl font-bold text-white drop-shadow-md";
+            document.getElementById("crash-overlay").classList.add("hidden");
+            drawBeastIdle();
+        }
+
+        function drawBeastIdle() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Сетка
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for(let i=0; i<canvas.width; i+=50) { ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); }
+            for(let i=0; i<canvas.height; i+=50) { ctx.moveTo(0,i); ctx.lineTo(canvas.width,i); }
+            ctx.stroke();
+            
+            // Ракета на старте
+            ctx.drawImage(rocketImg, 10, canvas.height - 60, 50, 50);
         }
 
         function startBeast() {
             if(beastState.active) {
-                finishBeast(true);
+                beastCashout();
                 return;
             }
 
-            const bet = currentBets.beast;
-            if(user.balance < bet) return alert("Нет денег!");
-            
-            user.balance -= bet;
-            beastState.bet = bet;
+            if(user.balance < currentBets.beast) return alert("Мало денег!");
+            user.balance -= currentBets.beast;
+            beastState.bet = currentBets.beast;
+            addXp(currentBets.beast);
             saveUser();
 
+            // Старт игры
             beastState.active = true;
-            addXp(Math.max(30, Math.floor(bet / 20)));
+            beastState.crashed = false;
+            beastState.multiplier = 1.00;
+            beastState.startTime = Date.now();
+            graphPoints = [{x: 0, y: canvas.height}]; // Начальная точка
 
+            // Кнопка меняется на вывод
             const btn = document.getElementById("beast-action-btn");
             btn.textContent = "ЗАБРАТЬ";
             btn.classList.remove("bg-blue-600");
             btn.classList.add("bg-emerald-500");
 
-            let speed = 0.01;
-            let crashPoint = (Math.random() * 0.9 + 0.1) * (Math.random() * 10 + 1); 
-            if(Math.random() < 0.3) crashPoint = 1.1; 
+            // Определяем точку краша
+            // Логика: чаще всего крашится рано, но иногда летит далеко
+            // E = -ln(U) / lambda. Простое распределение Парето
+            let crashPoint = 1 / (1 - Math.random());
+            // Ограничитель чтобы не слишком часто улетало в космос
+            if (crashPoint > 50) crashPoint = 50; 
+            if (Math.random() < 0.3) crashPoint = 1.0 + Math.random() * 0.4; // 30% ранних крашей
 
-            beastState.multiplier = 1.00;
-            const rocket = document.getElementById("rocket-obj");
-
-            beastState.interval = setInterval(() => {
-                beastState.multiplier += speed;
-                speed += 0.0005; 
-                
-                document.getElementById("crash-multiplier").textContent = beastState.multiplier.toFixed(2) + "x";
-
-                let progress = Math.min((beastState.multiplier - 1) / 5, 1);
-                rocket.style.bottom = (10 + progress * 230) + "px";
-                rocket.style.left = (10 + progress * 500) + "px";
-
-                if(beastState.multiplier >= crashPoint) {
-                    finishBeast(false);
-                }
-            }, 50);
+            requestAnimationFrame((ts) => gameLoop(ts, crashPoint));
         }
 
-        function finishBeast(win) {
-            clearInterval(beastState.interval);
+        function gameLoop(timestamp, crashPoint) {
+            if(!beastState.active) return;
+
+            // Рост множителя (экспоненциальный)
+            let elapsed = (Date.now() - beastState.startTime) / 1000; // секунды
+            beastState.multiplier = 1.0 + (elapsed * elapsed * 0.1) + (elapsed * 0.05);
+            
+            // Обновляем текст
+            document.getElementById("crash-multiplier").textContent = beastState.multiplier.toFixed(2) + "x";
+
+            // Проверка краша
+            if(beastState.multiplier >= crashPoint) {
+                triggerCrash(crashPoint);
+                return;
+            }
+
+            // Рисуем
+            drawGraph(elapsed);
+
+            requestAnimationFrame(() => gameLoop(timestamp, crashPoint));
+        }
+
+        function drawGraph(elapsed) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Сетка
+            ctx.strokeStyle = '#27272a'; // zinc-800
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for(let i=0; i<canvas.width; i+=50) { ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); }
+            for(let i=0; i<canvas.height; i+=50) { ctx.moveTo(0,i); ctx.lineTo(canvas.width,i); }
+            ctx.stroke();
+
+            // Вычисляем позицию ракеты
+            // X линейно, Y по экспоненте (но инвертировано т.к. canvas Y=0 наверху)
+            let x = elapsed * 40; 
+            let y = canvas.height - (elapsed * elapsed * 10) - 20;
+
+            // Если вылетели за пределы, сдвигаем график (масштабирование)
+            let scaleX = 1;
+            let scaleY = 1;
+
+            if (x > canvas.width - 60) {
+                scaleX = (canvas.width - 60) / x;
+            }
+            if (y < 20) {
+                // Если слишком высоко, не сжимаем сильно, просто ракета уходит в потолок (или скейлим Y)
+                // Для простоты скейлим все точки
+                scaleY = (canvas.height - 50) / (canvas.height - y);
+            }
+
+            // Рисуем линию
+            ctx.beginPath();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#3b82f6'; // blue-500
+            ctx.lineCap = 'round';
+            ctx.moveTo(0, canvas.height); // Старт
+            
+            // Здесь можно хранить историю точек для идеальной кривой,
+            // но для производительности рисуем кривую Безье "на лету" или просто линию к текущей точке
+            // Для красоты нарисуем квадратичную кривую от 0,H до тек X,Y
+            
+            // Используем scale для отрисовки
+            let drawX = x * scaleX;
+            let drawY = canvas.height - ((canvas.height - y) * scaleX); // Примитивный зум по X
+
+            ctx.quadraticCurveTo(drawX / 2, canvas.height, drawX, drawY);
+            ctx.stroke();
+
+            // Рисуем Ракету
+            ctx.save();
+            ctx.translate(drawX, drawY);
+            // Угол наклона - примерно 45 градусов или зависит от крутизны
+            let angle = -45 * Math.PI / 180;
+            ctx.rotate(angle);
+            ctx.drawImage(rocketImg, -25, -25, 50, 50); // центрируем
+            ctx.restore();
+        }
+
+        function triggerCrash(val) {
             beastState.active = false;
+            beastState.crashed = true;
+            
+            document.getElementById("crash-multiplier").className = "text-4xl font-bold text-red-600 z-10";
+            document.getElementById("crash-final-val").textContent = val.toFixed(2);
+            document.getElementById("crash-overlay").classList.remove("hidden");
+            
             const btn = document.getElementById("beast-action-btn");
+            btn.textContent = "ВЗРЫВ!";
+            btn.classList.remove("bg-emerald-500");
+            btn.classList.add("bg-red-600");
             btn.disabled = true;
 
-            if(win) {
-                const winAmount = Math.floor(beastState.bet * beastState.multiplier);
-                user.balance += winAmount;
-                saveUser();
-                document.getElementById("crash-multiplier").className = "absolute top-4 right-4 text-4xl font-bold z-10 text-emerald-400";
-                btn.textContent = `+${winAmount}`;
-                setTimeout(resetBeast, 2000);
-            } else {
-                document.getElementById("crash-message").classList.remove("hidden");
-                document.getElementById("crash-multiplier").className = "absolute top-4 right-4 text-4xl font-bold z-10 text-red-500";
-                btn.textContent = "CRASHED";
-                btn.classList.remove("bg-emerald-500");
-                btn.classList.add("bg-red-600");
-                setTimeout(resetBeast, 2000);
-            }
+            setTimeout(resetBeastUI, 3000);
         }
 
-        function forceStopBeast() {
-            clearInterval(beastState.interval);
+        function beastCashout() {
+            if(!beastState.active || beastState.crashed) return;
             beastState.active = false;
+            
+            const win = Math.floor(beastState.bet * beastState.multiplier);
+            user.balance += win;
+            saveUser();
+
+            document.getElementById("crash-multiplier").className = "text-4xl font-bold text-emerald-400 z-10";
+            
+            const btn = document.getElementById("beast-action-btn");
+            btn.textContent = `+${win} ₽`;
+            btn.disabled = true;
+            
+            setTimeout(resetBeastUI, 2000);
         }
+
     </script>
 </body>
 </html>
