@@ -3,163 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MeowFlopr Casino</title>
+    <title>MeowFlopr Casino - Главная</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         body { font-family: 'Press Start 2P', system-ui; }
-        .neon-text { text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 40px #00ffff; }
-        .toast {
-            animation: slideIn 0.4s ease, slideOut 0.4s 2.6s forwards;
-        }
-        @keyframes slideIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
-        @keyframes slideOut { from { transform: translateX(0); } to { transform: translateX(120%); } }
-        .locked { position: relative; }
-        .locked::after {
-            content: '🔒 LVL ' attr(data-required);
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            border-radius: 1.5rem;
-        }
+        .neon-text { text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; }
+        .toast { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     </style>
 </head>
-<body class="bg-zinc-950 text-white min-h-screen">
-    <!-- Header -->
+<body class="bg-zinc-950 text-white overflow-x-hidden">
     <header class="bg-black border-b-4 border-pink-500 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-4">
             <div class="flex items-center gap-3">
-                <img src="main.jpg" alt="MeowFlopr" class="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-2xl border-2 border-pink-500">
-                <div>
-                    <h1 class="text-2xl sm:text-3xl font-bold neon-text">MEOWFLOPR</h1>
-                    <p class="text-pink-400 text-xs">CASINO</p>
-                </div>
+                <div class="w-10 h-10 bg-pink-500 rounded-lg flex items-center justify-center text-2xl">🐾</div>
+                <h1 class="text-xl md:text-2xl font-bold neon-text tracking-tighter">MEOWFLOPR</h1>
             </div>
-            <nav class="flex gap-6 text-sm overflow-x-auto pb-1">
+            
+            <nav class="flex gap-4 md:gap-8 text-[10px] md:text-sm">
+                <a href="index.html" class="text-pink-400">ГЛАВНАЯ</a>
                 <a href="play.html" class="hover:text-pink-400 transition">ИГРЫ</a>
                 <a onclick="showLeaderboard()" class="cursor-pointer hover:text-pink-400 transition">ТОП</a>
-                <a onclick="showBonus()" class="cursor-pointer hover:text-pink-400 transition">БОНУС</a>
+                <a onclick="getBonus()" class="cursor-pointer hover:text-pink-400 transition">БОНУС</a>
             </nav>
-            <div class="flex items-center gap-4">
-                <div class="bg-zinc-900 px-4 py-2 rounded-full border-2 border-emerald-400 flex items-center gap-2 font-bold text-sm">
-                    <span class="text-emerald-400">₽</span>
-                    <span id="balance">100000</span>
-                </div>
-                <div onclick="showProfile()" class="flex items-center gap-2 cursor-pointer">
-                    <div id="username-display" class="text-pink-400 text-sm">ИГРОК</div>
-                    <div class="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center">🐾</div>
-                </div>
+
+            <div id="balance-display" class="bg-zinc-900 px-4 py-2 rounded-full border-2 border-emerald-400 flex items-center gap-2 text-xs md:text-base">
+                <span class="text-emerald-400">₽</span>
+                <span id="balance">0</span>
             </div>
         </div>
     </header>
 
-    <!-- Hero -->
-    <section class="relative h-screen flex items-center justify-center bg-[radial-gradient(at_center,#4c1d95_0%,#000_70%)]">
-        <div class="text-center px-4 z-10">
-            <h1 class="text-5xl sm:text-7xl font-black neon-text">MEOWFLOPR</h1>
-            <p class="text-xl sm:text-2xl mt-4 text-pink-300">Казино, где коты раздают миллионы</p>
-            <a href="play.html" class="mt-10 inline-block bg-gradient-to-r from-pink-500 to-purple-600 px-12 py-6 text-xl font-bold rounded-2xl border-4 border-white hover:scale-105 transition">
-                ИГРАТЬ СЕЙЧАС
-            </a>
+    <section class="relative min-h-[80vh] flex items-center justify-center bg-[radial-gradient(at_center,#4c1d95_0%,#000_70%)] text-center p-6">
+        <div class="z-10">
+            <h2 class="text-3xl md:text-6xl font-bold neon-text mb-4">ДОБРО ПОЖАЛОВАТЬ</h2>
+            <p class="text-sm md:text-xl mt-6 text-pink-300 max-w-2xl mx-auto leading-loose">
+                Лучшее кото-казино в этом сегменте интернета.
+            </p>
+            <div class="mt-12">
+                <a href="play.html" class="inline-block bg-gradient-to-r from-pink-500 to-purple-600 px-8 md:px-16 py-4 md:py-6 text-xl md:text-2xl font-bold rounded-xl border-4 border-white hover:scale-105 transition">
+                    К ИГРАМ 🎰
+                </a>
+            </div>
         </div>
     </section>
 
-    <!-- Games Preview -->
-    <section class="max-w-7xl mx-auto px-4 py-16">
-        <h2 class="text-4xl font-bold text-center mb-12 neon-text">ИГРЫ</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" id="games-grid">
-            <!-- Заполняется JS -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[200] flex flex-col gap-3"></div>
+
+    <div id="login-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-[100] p-4">
+        <div class="bg-zinc-900 border-4 border-pink-500 rounded-3xl p-6 md:p-10 max-w-md w-full">
+            <h2 class="text-2xl md:text-3xl text-center mb-8">КТО ТЫ, ВОИН?</h2>
+            <input id="username-input" type="text" placeholder="ТВОЙ НИК" class="w-full bg-black border-2 border-pink-400 px-6 py-4 text-lg rounded-2xl mb-6 text-white outline-none">
+            <button onclick="login()" class="w-full bg-pink-500 py-5 text-xl font-bold rounded-2xl">ВОЙТИ</button>
         </div>
-    </section>
-
-    <footer class="bg-black py-12 border-t-4 border-pink-500 text-center text-xs text-zinc-500">
-        <p>Сайт создан в шутку • 18+ • Не для реальных ставок</p>
-        <p class="mt-2">© 2026 MeowFlopr</p>
-    </footer>
-
-    <!-- Toast Container -->
-    <div id="toast-container" class="fixed top-4 right-4 z-[200] flex flex-col gap-3"></div>
+    </div>
 
     <script>
-        let user = { username: "ИГРОК", balance: 100000, level: 1, totalWon: 0 };
+        let user = JSON.parse(localStorage.getItem("meowflopr_user")) || {
+            username: "ИГРОК",
+            balance: 100000,
+            level: 1,
+            totalWon: 0
+        };
 
-        function loadUser() {
-            const saved = localStorage.getItem("meowflopr_user");
-            if (saved) user = JSON.parse(saved);
-            document.getElementById("balance").textContent = user.balance.toLocaleString("ru-RU");
-            document.getElementById("username-display").textContent = user.username;
+        function showToast(text, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colors = type === 'win' ? 'border-emerald-500 text-emerald-400' : 'border-pink-500 text-pink-400';
+            toast.className = `toast bg-zinc-900 border-l-4 p-4 rounded-lg shadow-2xl min-w-[250px] text-[10px] ${colors}`;
+            toast.innerHTML = text;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
         }
 
-        function saveUser() { localStorage.setItem("meowflopr_user", JSON.stringify(user)); }
-
-        function showToast(text, type = "success") {
-            const colors = { success: "bg-emerald-500", error: "bg-red-500", info: "bg-purple-500" };
-            const toast = document.createElement("div");
-            toast.className = `toast ${colors[type]} text-black font-bold px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[280px]`;
-            toast.innerHTML = `<span>${text}</span>`;
-            document.getElementById("toast-container").appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+        function updateUI() {
+            document.getElementById("balance").textContent = user.balance.toLocaleString();
+            localStorage.setItem("meowflopr_user", JSON.stringify(user));
         }
 
-        function updateLevel() {
-            const newLevel = Math.floor(user.totalWon / 50000) + 1;
-            if (newLevel > user.level) user.level = newLevel;
+        function getBonus() {
+            const last = localStorage.getItem("last_bonus") || 0;
+            if (Date.now() - last < 60000) {
+                showToast("БОНУС ЕЩЕ НЕ ГОТОВ!");
+                return;
+            }
+            user.balance += 5000;
+            localStorage.setItem("last_bonus", Date.now());
+            updateUI();
+            showToast("🎁 ЗАЧИСЛЕНО 5,000 ₽!", 'win');
         }
 
-        function showBonus() {
-            if (Date.now() - (window.lastBonus || 0) < 60000) return showToast("Бонус будет доступен через минуту", "info");
-            user.balance += 2000;
-            showToast("+2000 ₽ на баланс!", "success");
-            updateBalance();
-            window.lastBonus = Date.now();
-            saveUser();
-        }
-
-        function showLeaderboard() {
-            showToast("Пока ты на 1 месте с 1.488 млрд ₽ 🔥", "success");
-        }
-
-        function showProfile() {
-            const name = prompt("Новый ник:", user.username);
-            if (name) {
-                user.username = name.toUpperCase();
-                document.getElementById("username-display").textContent = user.username;
-                saveUser();
+        function login() {
+            const val = document.getElementById("username-input").value;
+            if (val) {
+                user.username = val.toUpperCase();
+                updateUI();
+                document.getElementById("login-modal").classList.add("hidden");
+                showToast(`ПРИВЕТ, ${user.username}!`);
             }
         }
 
-        function updateBalance() {
-            document.getElementById("balance").textContent = user.balance.toLocaleString("ru-RU");
-        }
-
-        // Карточки игр с замочками
-        function renderGameCards() {
-            const grid = document.getElementById("games-grid");
-            grid.innerHTML = `
-                <a href="play.html?game=slots" class="block bg-zinc-900 rounded-3xl overflow-hidden border-4 border-yellow-400 hover:scale-105 transition">
-                    <img src="https://cdn.nur.kz/images/1200x675/36135d7df8b99f1afe63116c264a570c.jpeg" class="w-full h-64 object-cover">
-                    <div class="p-6"><h3 class="text-2xl font-bold">СЛОТЫ МЕЛСТРОЯ</h3></div>
-                </a>
-                <a href="play.html?game=epstein" class="block bg-zinc-900 rounded-3xl overflow-hidden border-4 border-red-500 hover:scale-105 transition ${user.level < 5 ? 'locked' : ''}" data-required="5">
-                    <img src="https://nypost.com/wp-content/uploads/sites/2/2019/08/jeffrey-epstein-2-3.jpg" class="w-full h-64 object-cover">
-                    <div class="p-6"><h3 class="text-2xl font-bold text-red-400">РАЗБОРКИ С ЭПШТЕЙНОМ</h3></div>
-                </a>
-                <a href="play.html?game=mrbeast" class="block bg-zinc-900 rounded-3xl overflow-hidden border-4 border-cyan-400 hover:scale-105 transition ${user.level < 10 ? 'locked' : ''}" data-required="10">
-                    <img src="mrbeast.jpg" class="w-full h-64 object-cover">
-                    <div class="p-6"><h3 class="text-2xl font-bold text-cyan-400">ПОДЪЁМ У МИСТЕРА БИСТА</h3></div>
-                </a>
-            `;
-        }
-
         window.onload = () => {
-            loadUser();
-            renderGameCards();
-            if (!localStorage.getItem("meowflopr_user")) document.getElementById("login-modal")?.classList.remove("hidden");
+            if (!localStorage.getItem("meowflopr_user")) {
+                document.getElementById("login-modal").classList.remove("hidden");
+            }
+            updateUI();
         };
     </script>
 </body>
