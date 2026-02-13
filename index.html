@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MeowFlopr Casino</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -11,777 +11,1152 @@
         
         body {
             font-family: 'Press Start 2P', system-ui;
-            -webkit-tap-highlight-color: transparent;
         }
         
-        /* Скроллбар */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #111; }
-        ::-webkit-scrollbar-thumb { background: #ec4899; border-radius: 4px; }
-
         .neon-text {
-            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 40px #00ffff;
         }
         
-        /* Анимации уведомлений */
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        .slot-reel {
+            transition: all 0.1s linear;
         }
-        @keyframes fadeOut {
-            to { transform: translateX(100%); opacity: 0; }
-        }
-        .toast-enter { animation: slideIn 0.4s forwards; }
-        .toast-exit { animation: fadeOut 0.4s forwards; }
-
-        .slot-reel { transition: all 0.1s linear; }
         
-        .card-hover { transition: all 0.3s; }
-        .card-hover:active { transform: scale(0.95); }
-        @media (min-width: 768px) {
-            .card-hover:hover {
-                transform: scale(1.05) rotate(2deg);
-                box-shadow: 0 0 30px #ff00ff;
-                z-index: 10;
-            }
+        .explosion {
+            animation: explode 0.6s forwards;
         }
-
-        .locked-game {
-            filter: grayscale(100%);
-            pointer-events: none;
+        
+        @keyframes explode {
+            0% { transform: scale(0.5); opacity: 1; }
+            50% { transform: scale(1.8); }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+        
+        .card-hover {
+            transition: all 0.3s;
             position: relative;
+        }
+        .card-hover:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 0 30px #ff00ff;
         }
         
         .reel {
-            height: 120px;
+            height: 180px;
             overflow: hidden;
             border: 4px solid #ffd700;
             background: #111;
         }
-        @media (min-width: 768px) { .reel { height: 180px; } }
+        
+        /* Замочек на картах */
+        .locked-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(4px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            border-radius: 1.5rem;
+        }
+        
+        .lock-icon {
+            font-size: 4rem;
+            color: #fbbf24;
+            text-shadow: 0 0 20px #fbbf24;
+            animation: pulse-lock 2s infinite;
+        }
+        
+        @keyframes pulse-lock {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+        
+        /* Система уведомлений */
+        .notification-container {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+        }
+        
+        .notification {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d1a3d 100%);
+            border: 3px solid;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
+            animation: slideIn 0.4s ease-out, fadeOut 0.4s ease-in 2.6s forwards;
+            transform-origin: right;
+        }
+        
+        .notification.success {
+            border-color: #10b981;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
+        }
+        
+        .notification.bonus {
+            border-color: #fbbf24;
+            box-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
+        }
+        
+        .notification.info {
+            border-color: #06b6d4;
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.5);
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateX(400px);
+            }
+        }
+        
+        /* Адаптив для мобильных */
+        @media (max-width: 768px) {
+            body {
+                font-size: 10px;
+            }
+            
+            header {
+                padding: 10px !important;
+            }
+            
+            header .flex {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            header nav {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px !important;
+            }
+            
+            .neon-text {
+                font-size: 1.2rem !important;
+            }
+            
+            h1.text-8xl {
+                font-size: 2rem !important;
+            }
+            
+            h2.text-7xl {
+                font-size: 2.5rem !important;
+            }
+            
+            h2.text-5xl {
+                font-size: 1.8rem !important;
+            }
+            
+            .text-3xl {
+                font-size: 1.2rem !important;
+            }
+            
+            .text-2xl {
+                font-size: 1rem !important;
+            }
+            
+            .text-xl {
+                font-size: 0.9rem !important;
+            }
+            
+            button {
+                font-size: 0.9rem !important;
+                padding: 12px 20px !important;
+            }
+            
+            .grid-cols-3 {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .reel {
+                width: 100px !important;
+                height: 120px !important;
+            }
+            
+            .notification-container {
+                right: 10px;
+                left: 10px;
+                max-width: calc(100% - 20px);
+            }
+            
+            .notification {
+                padding: 15px;
+                font-size: 0.7rem;
+            }
+            
+            #balance-display, .bg-zinc-900 {
+                padding: 8px 12px !important;
+                font-size: 0.8rem !important;
+            }
+            
+            .lock-icon {
+                font-size: 2.5rem !important;
+            }
+            
+            .locked-overlay p {
+                font-size: 0.7rem !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .card-hover img {
+                height: 200px !important;
+            }
+            
+            .reel {
+                width: 80px !important;
+                height: 100px !important;
+            }
+            
+            .text-8xl, .text-6xl {
+                font-size: 2rem !important;
+            }
+        }
     </style>
 </head>
-<body class="bg-zinc-950 text-white overflow-x-hidden selection:bg-pink-500 selection:text-white">
-
-    <div id="toast-container" class="fixed top-4 right-4 z-[200] flex flex-col gap-3 w-full max-w-[320px] px-4 pointer-events-none"></div>
-
+<body class="bg-zinc-950 text-white overflow-x-hidden">
+    <!-- Контейнер для уведомлений -->
+    <div id="notification-container" class="notification-container"></div>
+    
     <header class="bg-black border-b-4 border-pink-500 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
-                <div class="flex items-center gap-3">
-                    <img src="main.jpg" onerror="this.src='https://placehold.co/100x100/ff00ff/ffffff?text=MF'" alt="MeowFlopr" class="w-10 h-10 object-cover rounded-xl border-2 border-pink-500">
-                    <div>
-                        <h1 class="text-xl md:text-3xl font-bold neon-text tracking-widest">MEOWFLOPR</h1>
-                    </div>
-                </div>
-                <div class="md:hidden flex items-center gap-2 bg-zinc-900 px-3 py-1 rounded-full border border-emerald-400 text-xs">
-                    <span class="text-emerald-400">₽</span>
-                    <span id="balance-mobile">0</span>
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="main.jpg" alt="MeowFlopr" class="w-12 h-12 object-cover rounded-2xl border-2 border-pink-500">
+                <div>
+                    <h1 class="text-3xl font-bold neon-text tracking-widest">MEOWFLOPR</h1>
+                    <p class="text-pink-400 text-xs -mt-1">CASINO</p>
                 </div>
             </div>
             
-            <div class="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-                <nav class="flex gap-4 text-[10px] md:text-sm w-full justify-between md:justify-start overflow-x-auto pb-1 md:pb-0">
-                    <a onclick="showSection('home')" class="cursor-pointer hover:text-pink-400 whitespace-nowrap">ГЛАВНАЯ</a>
-                    <a onclick="showSection('games')" class="cursor-pointer hover:text-pink-400 whitespace-nowrap">ИГРЫ</a>
-                    <a onclick="showLeaderboard()" class="cursor-pointer hover:text-pink-400 whitespace-nowrap">ТОП</a>
-                    <a onclick="showBonus()" class="cursor-pointer hover:text-pink-400 whitespace-nowrap text-yellow-400 animate-pulse">БОНУС</a>
+            <div class="flex items-center gap-8">
+                <nav class="flex gap-8 text-sm">
+                    <a onclick="showSection('home')" class="cursor-pointer hover:text-pink-400 transition">ГЛАВНАЯ</a>
+                    <a onclick="showSection('games')" class="cursor-pointer hover:text-pink-400 transition">ИГРЫ</a>
+                    <a onclick="showLeaderboard()" class="cursor-pointer hover:text-pink-400 transition">ТОП</a>
+                    <a onclick="showBonus()" class="cursor-pointer hover:text-pink-400 transition">БОНУСЫ</a>
                 </nav>
                 
-                <div class="hidden md:flex items-center gap-6">
-                    <div class="bg-zinc-900 px-6 py-2 rounded-full border-2 border-emerald-400 flex items-center gap-2 font-bold">
+                <div class="flex items-center gap-6">
+                    <div id="balance-display" class="bg-zinc-900 px-6 py-2 rounded-full border-2 border-emerald-400 flex items-center gap-2 font-bold">
                         <span class="text-emerald-400">₽</span>
                         <span id="balance">100000</span>
                     </div>
-                    <div class="bg-zinc-900 px-5 py-2 rounded-full border border-purple-400 flex items-center gap-2 cursor-pointer hover:bg-zinc-800" onclick="showLevelInfo()">
+                    <div class="bg-zinc-900 px-5 py-2 rounded-full border border-purple-400 flex items-center gap-2">
                         <span class="text-purple-400">LVL</span>
                         <span id="user-level" class="font-bold text-purple-400">1</span>
                     </div>
                 </div>
                 
-                <div onclick="showProfile()" class="hidden md:flex items-center gap-2 cursor-pointer hover:opacity-80">
-                    <div id="username-display" class="text-pink-400 text-sm truncate max-w-[100px]">ИГРОК</div>
-                    <div class="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center text-sm">🐾</div>
+                <div onclick="showProfile()" class="flex items-center gap-2 cursor-pointer">
+                    <div id="username-display" class="text-pink-400">ИГРОК</div>
+                    <div class="w-9 h-9 bg-pink-500 rounded-full flex items-center justify-center text-xl">🐾</div>
                 </div>
             </div>
         </div>
     </header>
 
-    <section id="home" class="relative min-h-[calc(100vh-80px)] flex items-center justify-center bg-[radial-gradient(at_center,#4c1d95_0%,#000_70%)] py-10">
-        <div class="text-center z-10 px-4 w-full max-w-4xl">
-            <h2 class="text-2xl md:text-5xl font-bold neon-text mb-4">ДОБРО ПОЖАЛОВАТЬ В</h2>
-            <h1 class="text-4xl md:text-8xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400 mb-6 break-words">MEOWFLOPR</h1>
-            <p class="text-xs md:text-2xl mt-4 text-pink-300 leading-relaxed">Где каждый спин — это кот в мешке... с деньгами</p>
+    <section id="home" class="relative h-screen flex items-center justify-center bg-[radial-gradient(at_center,#4c1d95_0%,#000_70%)]">
+        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1518684079-3c830dcef090')] opacity-10 bg-cover"></div>
+        <div class="text-center z-10 px-6">
+            <h2 class="text-7xl font-bold neon-text mb-4">ДОБРО ПОЖАЛОВАТЬ В</h2>
+            <h1 class="text-8xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400">MEOWFLOPR</h1>
+            <p class="text-2xl mt-6 text-pink-300">Где каждый спин — это кот в мешке... с деньгами</p>
             
-            <div class="mt-12 flex justify-center">
-                <button onclick="showGames()" class="w-full md:w-auto bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 px-8 py-6 text-xl md:text-2xl font-bold rounded-xl border-4 border-white transition shadow-[0_0_30px_#ec4899]">
+            <div class="mt-12 flex justify-center gap-6">
+                <button onclick="showGames()" class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 px-16 py-6 text-2xl font-bold rounded-xl border-4 border-white transition">
                     ИГРАТЬ СЕЙЧАС
                 </button>
             </div>
-            
-            <div class="mt-8 text-[10px] text-zinc-500">
-                Помни: казино всегда выигрывает (но не здесь)
-            </div>
         </div>
     </section>
 
-    <section id="games" class="max-w-7xl mx-auto px-4 py-10 hidden pb-24">
-        <h2 class="text-3xl md:text-5xl font-bold text-center mb-8 neon-text">ИГРЫ</h2>
+    <section id="games" class="max-w-7xl mx-auto px-6 py-16 hidden">
+        <h2 class="text-5xl font-bold text-center mb-12 neon-text">ИГРЫ</h2>
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
-            <div id="game-card-slots" class="card-hover bg-zinc-900 rounded-3xl overflow-hidden border-4 border-yellow-400 cursor-pointer relative" onclick="openSlotsModal()">
-                <div class="lock-overlay absolute inset-0 bg-black/80 z-20 flex flex-col items-center justify-center hidden">
-                    <i class="fas fa-lock text-6xl text-zinc-500 mb-4"></i>
-                    <p class="text-zinc-400">Нужен 1 уровень</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <!-- Слоты (всегда доступны) -->
+            <div onclick="openSlotsModal()" class="card-hover bg-zinc-900 rounded-3xl overflow-hidden border-4 border-yellow-400 cursor-pointer">
+                <img src="https://cdn.nur.kz/images/1200x675/36135d7df8b99f1afe63116c264a570c.jpeg?version=1" class="w-full h-80 object-cover">
+                <div class="p-8">
+                    <h3 class="text-3xl font-bold">СЛОТЫ МЕЛСТРОЯ</h3>
+                    <p class="text-emerald-400 text-lg">Фруктовый взрыв</p>
+                    <button class="mt-6 w-full bg-yellow-400 text-black py-4 font-bold text-xl rounded-2xl hover:bg-yellow-300">ИГРАТЬ</button>
                 </div>
-                <img src="https://cdn.nur.kz/images/1200x675/36135d7df8b99f1afe63116c264a570c.jpeg?version=1" onerror="this.src='https://placehold.co/600x400/111/yellow?text=SLOTS'" class="w-full h-48 md:h-80 object-cover">
-                <div class="p-6">
-                    <h3 class="text-xl md:text-3xl font-bold mb-2">СЛОТЫ</h3>
-                    <p class="text-emerald-400 text-xs md:text-lg mb-4">Классика жанра</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-yellow-400 text-xs">LVL 1+</span>
-                        <button class="bg-yellow-400 text-black px-6 py-2 font-bold rounded-xl hover:bg-yellow-300 text-sm">ИГРАТЬ</button>
+            </div>
+            
+            <!-- Эпштейн (доступен с уровня 5) -->
+            <div class="card-hover bg-zinc-900 rounded-3xl overflow-hidden border-4 border-red-500 cursor-pointer relative">
+                <div id="epstein-lock" class="locked-overlay hidden">
+                    <div class="lock-icon">🔒</div>
+                    <p class="text-yellow-400 text-center text-xl mt-4">ТРЕБУЕТСЯ<br>УРОВЕНЬ 5</p>
+                </div>
+                <div onclick="tryOpenEpsteinModal()">
+                    <img src="https://nypost.com/wp-content/uploads/sites/2/2019/08/jeffrey-epstein-2-3.jpg?quality=75&strip=all" class="w-full h-80 object-cover">
+                    <div class="p-8">
+                        <h3 class="text-3xl font-bold text-red-400">РАЗБОРКИ С ЭПШТЕЙНОМ</h3>
+                        <p class="text-amber-400 text-lg">Арбузы. Яблоки. Бомбы.</p>
+                        <button class="mt-6 w-full bg-red-600 py-4 font-bold text-xl rounded-2xl hover:bg-red-500">РАЗБИРАТЬСЯ</button>
                     </div>
                 </div>
             </div>
             
-            <div id="game-card-epstein" class="card-hover bg-zinc-900 rounded-3xl overflow-hidden border-4 border-red-500 cursor-pointer relative" onclick="openEpsteinModal()">
-                <div id="lock-epstein" class="lock-overlay absolute inset-0 bg-black/80 z-20 flex flex-col items-center justify-center">
-                    <i class="fas fa-lock text-6xl text-zinc-500 mb-4"></i>
-                    <p class="text-red-500 font-bold">НУЖЕН 5 УРОВЕНЬ</p>
+            <!-- MrBeast (доступен с уровня 10) -->
+            <div class="card-hover bg-zinc-900 rounded-3xl overflow-hidden border-4 border-cyan-400 cursor-pointer relative">
+                <div id="mrbeast-lock" class="locked-overlay hidden">
+                    <div class="lock-icon">🔒</div>
+                    <p class="text-yellow-400 text-center text-xl mt-4">ТРЕБУЕТСЯ<br>УРОВЕНЬ 10</p>
                 </div>
-                <img src="https://nypost.com/wp-content/uploads/sites/2/2019/08/jeffrey-epstein-2-3.jpg?quality=75&strip=all" onerror="this.src='https://placehold.co/600x400/111/red?text=EPSTEIN'" class="w-full h-48 md:h-80 object-cover">
-                <div class="p-6">
-                    <h3 class="text-xl md:text-3xl font-bold text-red-400 mb-2">EPSTEIN ISLAND</h3>
-                    <p class="text-amber-400 text-xs md:text-lg mb-4">Минное поле</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-red-400 text-xs">LVL 5+</span>
-                        <button class="bg-red-600 px-6 py-2 font-bold rounded-xl hover:bg-red-500 text-sm">ИГРАТЬ</button>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="game-card-crash" class="card-hover bg-zinc-900 rounded-3xl overflow-hidden border-4 border-cyan-400 cursor-pointer relative" onclick="openMrBeastModal()">
-                <div id="lock-crash" class="lock-overlay absolute inset-0 bg-black/80 z-20 flex flex-col items-center justify-center">
-                    <i class="fas fa-lock text-6xl text-zinc-500 mb-4"></i>
-                    <p class="text-cyan-500 font-bold">НУЖЕН 10 УРОВЕНЬ</p>
-                </div>
-                <img src="mrbeast.jpg" onerror="this.src='https://placehold.co/600x400/111/cyan?text=CRASH'" class="w-full h-48 md:h-80 object-cover">
-                <div class="p-6">
-                    <h3 class="text-xl md:text-3xl font-bold text-cyan-400 mb-2">BEAST CRASH</h3>
-                    <p class="text-sky-400 text-xs md:text-lg mb-4">Успей забрать!</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-cyan-400 text-xs">LVL 10+</span>
-                        <button class="bg-cyan-500 text-black px-6 py-2 font-bold rounded-xl hover:bg-cyan-400 text-sm">ЛЕТЕТЬ</button>
+                <div onclick="tryOpenMrBeastModal()">
+                    <img src="mrbeast.jpg" class="w-full h-80 object-cover">
+                    <div class="p-8">
+                        <h3 class="text-3xl font-bold text-cyan-400">ПОДЪЁМ У МИСТЕРА БИСТА</h3>
+                        <p class="text-sky-400 text-lg">Ракета к миллиардам</p>
+                        <button class="mt-6 w-full bg-cyan-500 text-black py-4 font-bold text-xl rounded-2xl hover:bg-cyan-400">ЛЕТЕТЬ</button>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
+    <footer class="bg-black py-12 border-t-4 border-pink-500">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <div class="flex justify-center gap-8 text-2xl mb-6">
+                <a href="https://t.me/MeowFlopr" target="_blank" class="hover:text-pink-400">t.me/MeowFlopr</a>
+            </div>
+            <p class="text-zinc-500 text-xs">Сайт создан исключительно в шутку. Не является реальным казино.<br>© 2026 MeowFlopr. Все права защищены (ну почти).</p>
+            <button onclick="showAgreement()" class="mt-8 text-xs underline text-zinc-400 hover:text-white">ПОЛЬЗОВАТЕЛЬСКОЕ СОГЛАШЕНИЕ</button>
+        </div>
+    </footer>
+
+    <!-- LOGIN MODAL -->
+    <div id="login-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center hidden z-[100]">
+        <div class="bg-zinc-900 border-4 border-pink-500 rounded-3xl p-10 max-w-md w-full mx-4">
+            <h2 class="text-4xl text-center mb-8">ДОБРО ПОЖАЛОВАТЬ</h2>
+            <input id="username-input" type="text" placeholder="ВВЕДИ СВОЙ НИК" class="w-full bg-black border-2 border-pink-400 px-6 py-5 text-xl focus:outline-none focus:border-pink-500 rounded-2xl mb-6">
+            <button onclick="login()" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 py-6 text-2xl font-bold rounded-2xl">ВОЙТИ В КАЗИНО</button>
+        </div>
+    </div>
+
+    <!-- SLOTS MODAL -->
     <div id="slots-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-[100] p-4">
-        <div class="bg-zinc-950 border-4 border-yellow-400 rounded-3xl p-4 md:p-8 max-w-4xl w-full max-h-full overflow-y-auto">
+        <div class="bg-zinc-950 border-8 border-yellow-400 rounded-3xl p-8 max-w-4xl w-full">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl md:text-4xl text-yellow-400">СЛОТЫ</h2>
-                <button onclick="closeSlotsModal()" class="text-2xl hover:text-white p-2">✕</button>
+                <h2 class="text-4xl">СЛОТЫ МЕЛСТРОЯ</h2>
+                <button onclick="closeSlotsModal()" class="text-4xl hover:text-pink-400">✕</button>
             </div>
             
-            <div class="flex justify-center gap-2 md:gap-4 mb-8 bg-zinc-900 p-4 rounded-2xl border-2 border-zinc-800">
-                <div id="reel1" class="reel w-20 md:w-40 flex items-center justify-center text-4xl md:text-8xl bg-black"></div>
-                <div id="reel2" class="reel w-20 md:w-40 flex items-center justify-center text-4xl md:text-8xl bg-black"></div>
-                <div id="reel3" class="reel w-20 md:w-40 flex items-center justify-center text-4xl md:text-8xl bg-black"></div>
+            <div class="flex justify-center gap-4 mb-8">
+                <div id="reel1" class="reel w-40 flex items-center justify-center text-8xl"></div>
+                <div id="reel2" class="reel w-40 flex items-center justify-center text-8xl"></div>
+                <div id="reel3" class="reel w-40 flex items-center justify-center text-8xl"></div>
             </div>
             
-            <div class="grid grid-cols-3 md:flex md:justify-center gap-2 mb-6">
-                <button onclick="setBet(100)" class="bet-btn p-2 md:px-6 md:py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-[10px] md:text-base">100₽</button>
-                <button onclick="setBet(500)" class="bet-btn p-2 md:px-6 md:py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-[10px] md:text-base">500₽</button>
-                <button onclick="setBet(1000)" class="bet-btn p-2 md:px-6 md:py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-[10px] md:text-base">1К₽</button>
-                <button onclick="setBet(5000)" class="bet-btn p-2 md:px-6 md:py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-[10px] md:text-base">5К₽</button>
-                <button onclick="showCustomBet('slots')" class="col-span-2 md:col-span-1 p-2 md:px-6 bg-purple-900 hover:bg-purple-800 rounded-xl text-[10px] md:text-base">СВОЯ</button>
-            </div>
-
-            <div id="custom-bet-slots" class="hidden flex gap-2 justify-center mb-4">
-                <input id="input-slots" type="number" class="bg-black border border-purple-500 p-2 rounded w-32 text-center" placeholder="Сумма">
-                <button onclick="applyCustomBet('slots')" class="bg-purple-600 px-4 rounded">OK</button>
+            <div class="flex justify-center gap-6 mb-8">
+                <button onclick="setBet(1000)" class="bg-pink-600 px-8 py-4 rounded-2xl hover:bg-pink-500 text-lg">1000 ₽</button>
+                <button onclick="setBet(5000)" class="bg-pink-600 px-8 py-4 rounded-2xl hover:bg-pink-500 text-lg">5000 ₽</button>
+                <button onclick="setBet(10000)" class="bg-pink-600 px-8 py-4 rounded-2xl hover:bg-pink-500 text-lg">10000 ₽</button>
             </div>
             
-            <div class="text-center">
-                <div class="text-sm md:text-2xl mb-4 text-zinc-400">СТАВКА: <span id="current-bet" class="text-white font-bold">1000</span> ₽</div>
-                <button onclick="spinSlots()" id="spin-button" class="w-full md:w-auto bg-gradient-to-b from-yellow-400 to-yellow-600 text-black text-xl md:text-4xl font-bold px-12 py-6 rounded-2xl shadow-[0_5px_0_#b45309] active:translate-y-1 active:shadow-none transition">КРУТИТЬ</button>
+            <div class="text-center mb-6">
+                <p class="text-xl">СТАВКА: <span id="current-bet" class="text-yellow-400 font-bold">5000</span> ₽</p>
             </div>
             
-            <div id="slots-result" class="text-center text-lg md:text-3xl mt-6 h-10 font-bold"></div>
+            <button onclick="spin()" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 py-6 text-3xl font-bold rounded-2xl hover:from-yellow-500 hover:to-orange-600">
+                КРУТИТЬ
+            </button>
         </div>
     </div>
 
+    <!-- EPSTEIN MODAL -->
     <div id="epstein-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-[100] p-4">
-        <div class="bg-zinc-950 border-4 border-red-600 rounded-3xl p-4 md:p-8 max-w-5xl w-full max-h-full overflow-y-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg md:text-3xl text-red-400">EPSTEIN ISLAND</h2>
-                <button onclick="closeEpsteinModal()" class="text-2xl hover:text-red-400 p-2">✕</button>
+        <div class="bg-zinc-950 border-8 border-red-500 rounded-3xl p-8 max-w-3xl w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-4xl text-red-400">РАЗБОРКИ С ЭПШТЕЙНОМ</h2>
+                <button onclick="closeEpsteinModal()" class="text-4xl hover:text-pink-400">✕</button>
             </div>
             
-            <div class="flex flex-col md:flex-row gap-6">
-                <div class="w-full md:w-64 flex flex-col gap-4 order-2 md:order-1">
-                    <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
-                        <div class="text-xs text-zinc-500 mb-2">СТАВКА</div>
-                        <input id="epstein-bet-input" type="number" value="1000" class="w-full bg-black border border-zinc-700 p-3 rounded-xl text-center text-xl mb-2">
-                        <div class="grid grid-cols-2 gap-2 mb-4">
-                            <button onclick="setEpsteinBetInput(1000)" class="bg-zinc-800 py-2 rounded text-xs">1K</button>
-                            <button onclick="setEpsteinBetInput(5000)" class="bg-zinc-800 py-2 rounded text-xs">5K</button>
-                            <button onclick="setEpsteinBetInput(10000)" class="bg-zinc-800 py-2 rounded text-xs">10K</button>
-                            <button onclick="setEpsteinBetInput(user.balance)" class="bg-zinc-800 py-2 rounded text-xs text-pink-400">ALL</button>
-                        </div>
-                        <button onclick="startEpsteinGame()" id="start-epstein-btn" class="w-full bg-red-600 hover:bg-red-500 py-4 font-bold rounded-xl shadow-[0_4px_0_#991b1b] active:translate-y-1 active:shadow-none">НАЧАТЬ</button>
-                    </div>
-
-                    <div id="epstein-stats" class="hidden">
-                        <div class="text-center mb-2">
-                            <div class="text-xs text-zinc-500">ТЕКУЩИЙ ВЫИГРЫШ</div>
-                            <div class="text-2xl text-emerald-400 font-bold" id="ep-current-win">0 ₽</div>
-                        </div>
-                        <button onclick="cashOutEpstein()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black py-4 font-bold rounded-xl shadow-[0_4px_0_#065f46] active:translate-y-1 active:shadow-none">ЗАБРАТЬ</button>
-                    </div>
+            <div class="bg-black p-6 rounded-2xl mb-6">
+                <div class="flex justify-between text-lg mb-4">
+                    <span>ТЕКУЩИЙ ВЫИГРЫШ:</span>
+                    <span class="text-emerald-400 font-bold"><span id="current-winnings">0</span> ₽</span>
                 </div>
-                
-                <div class="flex-1 order-1 md:order-2">
-                    <div id="epstein-grid" class="grid grid-cols-4 gap-2 md:gap-3 bg-zinc-900 p-4 rounded-3xl border-2 border-zinc-800">
-                        </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="mrbeast-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-[100] p-2">
-        <div class="bg-zinc-950 border-4 border-cyan-500 rounded-3xl p-4 md:p-6 max-w-4xl w-full flex flex-col gap-4 relative overflow-hidden">
-            <button onclick="closeMrBeastModal()" class="absolute top-4 right-4 text-zinc-500 hover:text-white z-20 text-2xl">✕</button>
-            
-            <div class="relative h-[250px] md:h-[400px] bg-zinc-900 rounded-2xl border-2 border-zinc-800 overflow-hidden">
-                <canvas id="crash-canvas" class="absolute inset-0 w-full h-full z-0"></canvas>
-                
-                <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                    <div id="crash-multiplier-display" class="text-5xl md:text-8xl font-black text-white drop-shadow-md">1.00x</div>
-                </div>
-                
-                <div id="crash-status" class="absolute inset-0 bg-black/80 flex flex-col items-center justify-center z-20 hidden">
-                    <h2 class="text-red-500 text-4xl md:text-6xl font-black mb-2">CRASHED</h2>
-                    <p class="text-zinc-400 text-xl" id="crashed-at-val">@ 1.00x</p>
-                </div>
-            </div>
-            
-            <div class="flex flex-col md:flex-row gap-4">
-                <div class="flex-1 flex gap-2">
-                    <input id="crash-bet-input" type="number" placeholder="Ставка" value="1000" class="bg-black border border-zinc-600 rounded-xl px-4 text-xl w-full">
-                    <div class="flex gap-1">
-                        <button onclick="halfCrashBet()" class="bg-zinc-800 px-3 rounded-xl text-xs">1/2</button>
-                        <button onclick="doubleCrashBet()" class="bg-zinc-800 px-3 rounded-xl text-xs">x2</button>
-                    </div>
-                </div>
-                
-                <button id="crash-action-btn" onclick="startCrash()" class="w-full md:w-64 bg-cyan-500 hover:bg-cyan-400 text-black text-2xl font-black py-4 rounded-xl shadow-[0_5px_0_#0e7490] active:translate-y-1 active:shadow-none transition">
-                    СТАРТ
+                <button onclick="cashOutEpstein()" class="w-full bg-emerald-600 py-4 rounded-xl hover:bg-emerald-500 font-bold text-xl">
+                    ЗАБРАТЬ ВЫИГРЫШ
                 </button>
             </div>
+            
+            <div id="epstein-grid" class="grid grid-cols-4 gap-3 mb-6"></div>
+            
+            <button onclick="startEpsteinGame()" class="w-full bg-gradient-to-r from-red-600 to-orange-600 py-6 text-2xl font-bold rounded-2xl hover:from-red-700 hover:to-orange-700">
+                НАЧАТЬ (5000 ₽)
+            </button>
         </div>
     </div>
 
-    <div id="login-modal" class="fixed inset-0 bg-black/95 flex items-center justify-center hidden z-[300] p-4">
-        <div class="bg-zinc-900 border-2 border-pink-500 rounded-2xl p-8 w-full max-w-md text-center">
-            <h2 class="text-2xl mb-6">КТО ТЫ, ВОИН?</h2>
-            <input id="username-input" type="text" placeholder="Твой ник" class="w-full bg-black border border-zinc-600 p-4 text-center text-xl rounded-xl mb-4 text-white">
-            <button onclick="login()" class="w-full bg-pink-600 py-4 font-bold rounded-xl">ПОГНАЛИ</button>
+    <!-- MRBEAST MODAL -->
+    <div id="mrbeast-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-[100] p-4">
+        <div class="bg-zinc-950 border-8 border-cyan-400 rounded-3xl p-8 max-w-4xl w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-4xl text-cyan-400">ПОДЪЁМ У МИСТЕРА БИСТА</h2>
+                <button onclick="closeMrBeastModal()" class="text-4xl hover:text-pink-400">✕</button>
+            </div>
+            
+            <div class="relative bg-gradient-to-b from-blue-900 to-purple-900 rounded-2xl p-8 mb-6" style="height: 400px;">
+                <canvas id="crash-canvas" width="700" height="350" class="absolute top-0 left-0 w-full h-full"></canvas>
+                
+                <div class="absolute top-8 left-1/2 transform -translate-x-1/2">
+                    <div id="multiplier-big" class="text-6xl font-bold text-cyan-400 neon-text">1.00x</div>
+                </div>
+                
+                <div id="rocket-img" class="absolute left-8 text-6xl transition-all duration-100" style="bottom: 60px;">
+                    🚀
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4 mb-6">
+                <button onclick="setCrashBet(5000)" class="bg-cyan-600 px-6 py-3 rounded-xl hover:bg-cyan-500">5000 ₽</button>
+                <button onclick="setCrashBet(10000)" class="bg-cyan-600 px-6 py-3 rounded-xl hover:bg-cyan-500">10000 ₽</button>
+                <button onclick="setCrashBet(25000)" class="bg-cyan-600 px-6 py-3 rounded-xl hover:bg-cyan-500">25000 ₽</button>
+                <button id="custom-bet-crash-btn" onclick="customBetCrash()" class="bg-purple-600 px-6 py-3 rounded-xl hover:bg-purple-500 hidden">СВОЯ СТАВКА</button>
+            </div>
+            
+            <div class="text-center mb-6">
+                <p class="text-xl">СТАВКА: <span id="crash-current-bet" class="text-cyan-400 font-bold">5000</span> ₽</p>
+                <p class="text-sm text-gray-400 mt-2">МНОЖИТЕЛЬ: <span id="current-multiplier" class="text-cyan-300">1.00</span>x</p>
+            </div>
+            
+            <button id="start-crash-btn" onclick="startCrashGame()" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 py-6 text-3xl font-bold rounded-2xl hover:from-cyan-600 hover:to-blue-700">
+                ВЗЛЕТЕТЬ
+            </button>
+            
+            <button id="cashout-crash-btn" onclick="cashOutCrash()" class="w-full bg-gradient-to-r from-emerald-500 to-green-600 py-6 text-3xl font-bold rounded-2xl hidden">
+                ЗАБРАТЬ
+            </button>
         </div>
     </div>
-    
-    <div id="leaderboard-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center hidden z-[150] p-4">
-        <div class="bg-zinc-900 border border-zinc-700 rounded-3xl p-6 max-w-md w-full">
-            <h2 class="text-2xl text-center mb-6">ТОП БОГАТЕЕВ</h2>
-            <div class="space-y-4" id="leaderboard-list">
+
+    <!-- PROFILE MODAL -->
+    <div id="profile-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-[100] p-4">
+        <div class="bg-zinc-900 border-4 border-purple-500 rounded-3xl p-10 max-w-md w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl">ПРОФИЛЬ</h2>
+                <button onclick="closeProfile()" class="text-3xl hover:text-pink-400">✕</button>
+            </div>
+            
+            <div class="text-center mb-8">
+                <div class="w-24 h-24 bg-pink-500 rounded-full flex items-center justify-center text-5xl mx-auto mb-4">🐾</div>
+                <h3 id="profile-username" class="text-2xl text-pink-400 mb-2">ИГРОК</h3>
+                <p class="text-purple-400">Уровень <span id="profile-level">1</span></p>
+            </div>
+            
+            <div class="space-y-4 mb-8">
+                <div class="flex justify-between bg-black p-4 rounded-xl">
+                    <span>Баланс:</span>
+                    <span class="text-emerald-400 font-bold"><span id="profile-balance">0</span> ₽</span>
                 </div>
-            <button onclick="document.getElementById('leaderboard-modal').classList.add('hidden')" class="mt-6 w-full py-3 bg-zinc-800 rounded-xl">ЗАКРЫТЬ</button>
+                <div class="flex justify-between bg-black p-4 rounded-xl">
+                    <span>Выиграно:</span>
+                    <span class="text-yellow-400 font-bold"><span id="profile-won">0</span> ₽</span>
+                </div>
+                <div class="flex justify-between bg-black p-4 rounded-xl">
+                    <span>Игр сыграно:</span>
+                    <span class="text-cyan-400 font-bold" id="profile-games">0</span>
+                </div>
+            </div>
+            
+            <button onclick="resetProgress()" class="w-full bg-red-600 py-4 rounded-xl hover:bg-red-500 text-sm">
+                СБРОСИТЬ ПРОГРЕСС
+            </button>
+        </div>
+    </div>
+
+    <!-- LEADERBOARD MODAL -->
+    <div id="leaderboard-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-[100] p-4">
+        <div class="bg-zinc-900 border-4 border-yellow-400 rounded-3xl p-10 max-w-2xl w-full">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-4xl neon-text">ТОП ИГРОКОВ</h2>
+                <button onclick="closeLeaderboard()" class="text-4xl hover:text-pink-400">✕</button>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="flex items-center gap-4 bg-gradient-to-r from-yellow-600 to-orange-600 p-6 rounded-2xl">
+                    <span class="text-4xl">🥇</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-xl">MegaCat777</p>
+                        <p class="text-sm text-yellow-200">Уровень 50</p>
+                    </div>
+                    <span class="text-2xl font-bold">15.5M ₽</span>
+                </div>
+                
+                <div class="flex items-center gap-4 bg-gradient-to-r from-gray-400 to-gray-600 p-6 rounded-2xl">
+                    <span class="text-4xl">🥈</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-xl">LuckyStrike</p>
+                        <p class="text-sm text-gray-200">Уровень 42</p>
+                    </div>
+                    <span class="text-2xl font-bold">8.2M ₽</span>
+                </div>
+                
+                <div class="flex items-center gap-4 bg-gradient-to-r from-orange-700 to-orange-900 p-6 rounded-2xl">
+                    <span class="text-4xl">🥉</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-xl">SpinMaster</p>
+                        <p class="text-sm text-orange-200">Уровень 38</p>
+                    </div>
+                    <span class="text-2xl font-bold">6.7M ₽</span>
+                </div>
+                
+                <div class="flex items-center gap-4 bg-zinc-800 p-6 rounded-2xl opacity-60">
+                    <span class="text-2xl">4.</span>
+                    <div class="flex-1">
+                        <p class="font-bold">НеБедныйКот</p>
+                        <p class="text-sm text-gray-400">Уровень 35</p>
+                    </div>
+                    <span class="font-bold">4.1M ₽</span>
+                </div>
+                
+                <div class="flex items-center gap-4 bg-zinc-800 p-6 rounded-2xl opacity-60">
+                    <span class="text-2xl">5.</span>
+                    <div class="flex-1">
+                        <p class="font-bold" id="profile-username">ИГРОК</p>
+                        <p class="text-sm text-gray-400">Уровень <span id="leaderboard-level">1</span></p>
+                    </div>
+                    <span class="font-bold"><span id="leaderboard-balance">0</span> ₽</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BONUS MODAL -->
+    <div id="bonus-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-[100] p-4">
+        <div class="bg-zinc-900 border-4 border-yellow-400 rounded-3xl p-10 max-w-lg w-full">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-4xl neon-text">БОНУСЫ</h2>
+                <button onclick="closeBonus()" class="text-4xl hover:text-pink-400">✕</button>
+            </div>
+            
+            <div class="text-center mb-8">
+                <div class="text-8xl mb-4">🎁</div>
+                <h3 class="text-3xl mb-4 text-yellow-400">ЕЖЕДНЕВНЫЙ БОНУС</h3>
+                <p class="text-gray-400 mb-6">Получай бонусы каждый день!</p>
+            </div>
+            
+            <div class="bg-black p-6 rounded-2xl mb-6">
+                <p class="text-center mb-4">Следующий бонус через:</p>
+                <p id="bonus-timer" class="text-3xl text-center text-cyan-400 font-bold">--:--:--</p>
+            </div>
+            
+            <button id="claim-bonus-btn" onclick="claimBonus()" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 py-6 text-2xl font-bold rounded-2xl hover:from-yellow-500 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                ЗАБРАТЬ БОНУС
+            </button>
+        </div>
+    </div>
+
+    <!-- AGREEMENT MODAL -->
+    <div id="agreement-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-[100] p-4 overflow-y-auto">
+        <div class="bg-zinc-900 border-4 border-pink-500 rounded-3xl p-10 max-w-3xl w-full my-8">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl">ПОЛЬЗОВАТЕЛЬСКОЕ СОГЛАШЕНИЕ</h2>
+                <button onclick="closeAgreement()" class="text-3xl hover:text-pink-400">✕</button>
+            </div>
+            
+            <div class="text-sm space-y-4 text-gray-300 max-h-96 overflow-y-auto">
+                <p>Этот сайт создан исключительно в развлекательных целях и не является настоящим онлайн-казино.</p>
+                <p>Весь игровой процесс носит виртуальный характер. Никакие реальные деньги не задействованы.</p>
+                <p>Использование сайта подразумевает согласие с данными условиями.</p>
+                <p>Мы не несем ответственности за игровую зависимость от виртуальных котиков.</p>
+                <p class="text-pink-400 font-bold">18+ Играйте ответственно! (Даже если это ненастоящее)</p>
+            </div>
+            
+            <button onclick="closeAgreement()" class="mt-6 w-full bg-pink-600 py-4 rounded-xl hover:bg-pink-500">
+                ПОНЯТНО
+            </button>
         </div>
     </div>
 
     <script>
-        // === CORE SYSTEM ===
-        let user = { username: "ИГРОК", balance: 5000, level: 1, xp: 0 };
-        
-        function init() {
-            const saved = localStorage.getItem("mf_user_v2");
-            if (saved) user = JSON.parse(saved);
+        let user = {
+            username: "",
+            balance: 100000,
+            level: 1,
+            totalWon: 0,
+            gamesPlayed: 0,
+            lastBonus: 0
+        }
+
+        let currentBet = 5000
+        let crashBet = 5000
+        let spinning = false
+        let gameActive = false
+        let epsteinWinnings = 0
+        let epsteinRevealed = 0
+        let isFlying = false
+        let currentCrashMultiplier = 1.00
+        let crashTarget = 10
+        let crashInterval = null
+        let canvas = null
+        let ctx = null
+
+        const symbols = ["🍒", "🍋", "🍊", "🍇", "💎", "7️⃣"]
+
+        // ==================== СИСТЕМА УВЕДОМЛЕНИЙ ====================
+        function showNotification(message, type = 'info', icon = '💰') {
+            const container = document.getElementById('notification-container')
+            const notification = document.createElement('div')
+            notification.className = `notification ${type}`
             
-            if (!user.username || user.username === "ИГРОК") {
-                document.getElementById("login-modal").classList.remove("hidden");
-            }
+            notification.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <span class="text-3xl">${icon}</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-sm mb-1">${type === 'success' ? 'УСПЕХ!' : type === 'bonus' ? 'БОНУС!' : 'ИНФО'}</p>
+                        <p class="text-xs leading-relaxed">${message}</p>
+                    </div>
+                </div>
+            `
             
-            updateUI();
-            updateLocks();
-            showSection('home');
+            container.appendChild(notification)
+            
+            setTimeout(() => {
+                notification.remove()
+            }, 3000)
         }
 
-        function save() {
-            localStorage.setItem("mf_user_v2", JSON.stringify(user));
+        // ==================== USER FUNCTIONS ====================
+        function saveUser() {
+            localStorage.setItem("meowflopr_user", JSON.stringify(user))
         }
 
-        function updateUI() {
-            document.getElementById("balance").textContent = Math.floor(user.balance).toLocaleString();
-            document.getElementById("balance-mobile").textContent = Math.floor(user.balance).toLocaleString();
-            document.getElementById("user-level").textContent = user.level;
-            document.getElementById("username-display").textContent = user.username;
-        }
-
-        function updateLocks() {
-            // Logic for visual locks
-            const games = [
-                { id: 'game-card-slots', lvl: 1, lockId: null }, // Slots always open
-                { id: 'game-card-epstein', lvl: 5, lockId: 'lock-epstein' },
-                { id: 'game-card-crash', lvl: 10, lockId: 'lock-crash' }
-            ];
-
-            games.forEach(g => {
-                const card = document.getElementById(g.id);
-                const lock = g.lockId ? document.getElementById(g.lockId) : null;
-                
-                if (user.level < g.lvl) {
-                    card.classList.add("locked-game");
-                    if (lock) lock.classList.remove("hidden");
-                    if (lock) lock.classList.add("flex");
-                } else {
-                    card.classList.remove("locked-game");
-                    if (lock) lock.classList.add("hidden");
-                    if (lock) lock.classList.remove("flex");
-                }
-            });
-        }
-
-        function addXp(amount) {
-            user.xp += amount;
-            const needed = user.level * 5000;
-            if (user.xp >= needed) {
-                user.level++;
-                user.xp -= needed;
-                showNotify(`УРОВЕНЬ ПОВЫШЕН! ТЕПЕРЬ ${user.level}`, "gold");
-                updateLocks();
+        function loadUser() {
+            const saved = localStorage.getItem("meowflopr_user")
+            if (saved) {
+                user = JSON.parse(saved)
+                document.getElementById("username-display").textContent = user.username
+                updateBalance()
+                updateLevel()
+                updateLockedGames()
             }
-            save();
-            updateUI();
         }
 
         function login() {
-            const val = document.getElementById("username-input").value.trim();
-            if (val) user.username = val;
-            document.getElementById("login-modal").classList.add("hidden");
-            save();
-            updateUI();
-            showNotify(`Добро пожаловать, ${user.username}!`, "pink");
-        }
-
-        // === NOTIFICATION SYSTEM ===
-        function showNotify(msg, type = "purple") {
-            const container = document.getElementById("toast-container");
-            const toast = document.createElement("div");
-            
-            // Colors
-            let borderColor = "border-pink-500";
-            let bg = "bg-zinc-900";
-            let icon = "fa-bell";
-            
-            if (type === "success") { borderColor = "border-emerald-400"; icon = "fa-check"; }
-            if (type === "error") { borderColor = "border-red-500"; icon = "fa-triangle-exclamation"; }
-            if (type === "gold") { borderColor = "border-yellow-400"; icon = "fa-trophy"; }
-
-            toast.className = `toast-enter pointer-events-auto flex items-center gap-3 p-4 rounded-xl border-l-4 ${borderColor} ${bg} shadow-lg text-sm md:text-base`;
-            toast.innerHTML = `
-                <i class="fas ${icon} ${type === 'error' ? 'text-red-500' : 'text-white'}"></i>
-                <div class="font-bold">${msg}</div>
-            `;
-            
-            container.appendChild(toast);
-            
-            // Auto remove
-            setTimeout(() => {
-                toast.classList.remove("toast-enter");
-                toast.classList.add("toast-exit");
-                setTimeout(() => toast.remove(), 400);
-            }, 3000);
-        }
-
-        // === NAVIGATION ===
-        function showSection(id) {
-            document.getElementById("home").classList.add("hidden");
-            document.getElementById("games").classList.add("hidden");
-            document.getElementById(id).classList.remove("hidden");
-        }
-        function showGames() { showSection("games"); }
-        
-        function showBonus() {
-            const now = Date.now();
-            const last = user.lastBonus || 0;
-            if (now - last < 60000) {
-                const wait = Math.ceil((60000 - (now - last))/1000);
-                showNotify(`Бонус доступен через ${wait} сек`, "error");
-                return;
+            const username = document.getElementById("username-input").value.trim()
+            if (!username) {
+                alert("Введи свой ник!")
+                return
             }
-            user.balance += 500;
-            user.lastBonus = now;
-            save();
-            updateUI();
-            showNotify("+500 ₽ Бонус получен!", "success");
+            
+            user.username = username
+            document.getElementById("username-display").textContent = username
+            document.getElementById("login-modal").classList.add("hidden")
+            saveUser()
+            
+            showNotification(`Добро пожаловать, ${username}!`, 'info', '👋')
+        }
+
+        function updateBalance() {
+            document.getElementById("balance").textContent = user.balance.toLocaleString()
+        }
+
+        function updateLevel() {
+            const newLevel = Math.floor(user.totalWon / 50000) + 1
+            if (newLevel > user.level) {
+                const oldLevel = user.level
+                user.level = newLevel
+                showNotification(`Поздравляем! Вы достигли ${newLevel} уровня!`, 'bonus', '🎉')
+                updateLockedGames()
+            }
+            document.getElementById("user-level").textContent = user.level
+        }
+
+        function updateLockedGames() {
+            // Эпштейн блокируется до 5 уровня
+            const epsteinLock = document.getElementById('epstein-lock')
+            if (user.level < 5) {
+                epsteinLock.classList.remove('hidden')
+            } else {
+                epsteinLock.classList.add('hidden')
+            }
+            
+            // MrBeast блокируется до 10 уровня
+            const mrbeastLock = document.getElementById('mrbeast-lock')
+            if (user.level < 10) {
+                mrbeastLock.classList.remove('hidden')
+            } else {
+                mrbeastLock.classList.add('hidden')
+            }
+        }
+
+        // ==================== NAVIGATION ====================
+        function showSection(section) {
+            document.getElementById("home").classList.add("hidden")
+            document.getElementById("games").classList.add("hidden")
+            
+            if (section === "home") {
+                document.getElementById("home").classList.remove("hidden")
+            } else if (section === "games") {
+                document.getElementById("games").classList.remove("hidden")
+                updateLockedGames()
+            }
+        }
+
+        function showGames() {
+            showSection("games")
+        }
+
+        function showProfile() {
+            document.getElementById("profile-username").textContent = user.username
+            document.getElementById("profile-level").textContent = user.level
+            document.getElementById("profile-balance").textContent = user.balance.toLocaleString()
+            document.getElementById("profile-won").textContent = user.totalWon.toLocaleString()
+            document.getElementById("profile-games").textContent = user.gamesPlayed
+            document.getElementById("profile-modal").classList.remove("hidden")
+        }
+
+        function closeProfile() {
+            document.getElementById("profile-modal").classList.add("hidden")
+        }
+
+        function resetProgress() {
+            if (confirm("Точно хочешь сбросить весь прогресс?")) {
+                user.balance = 100000
+                user.level = 1
+                user.totalWon = 0
+                user.gamesPlayed = 0
+                user.lastBonus = 0
+                updateBalance()
+                updateLevel()
+                saveUser()
+                closeProfile()
+                showNotification("Прогресс сброшен!", 'info', '🔄')
+            }
         }
 
         function showLeaderboard() {
-            document.getElementById("leaderboard-modal").classList.remove("hidden");
-            const list = document.getElementById("leaderboard-list");
-            list.innerHTML = `
-                <div class="flex justify-between border-b border-zinc-700 pb-2">
-                    <span>1. MeowFlopr (Dev)</span>
-                    <span class="text-yellow-400">∞</span>
-                </div>
-                <div class="flex justify-between border-b border-zinc-700 pb-2">
-                    <span>2. ${user.username} (Ты)</span>
-                    <span class="text-emerald-400">${Math.floor(user.balance)}</span>
-                </div>
-                <div class="flex justify-between text-zinc-500">
-                    <span>3. Лох Педальный</span>
-                    <span>0</span>
-                </div>
-            `;
+            document.getElementById("leaderboard-level").textContent = user.level
+            document.getElementById("leaderboard-balance").textContent = user.balance.toLocaleString()
+            document.getElementById("leaderboard-modal").classList.remove("hidden")
         }
 
-        // === SLOTS GAME ===
-        let slotsBet = 1000;
-        const slotSymbols = [
-            {img: 'https://cdn-icons-png.flaticon.com/512/11699/11699946.png', val: 2}, // Cherry
-            {img: 'https://cdn-icons-png.flaticon.com/512/3257/3257762.png', val: 3}, // Lemon
-            {img: 'https://cdn-icons-png.flaticon.com/512/15570/15570196.png', val: 5}, // 777
-            {img: 'https://cdn-icons-png.flaticon.com/512/625/625345.png', val: 10} // Diamond
-        ];
-
-        function openSlotsModal() {
-            document.getElementById("slots-modal").classList.remove("hidden");
-            resetSlots();
-        }
-        function closeSlotsModal() { document.getElementById("slots-modal").classList.add("hidden"); }
-        function setBet(v) { slotsBet = v; document.getElementById("current-bet").textContent = v; }
-        function showCustomBet(g) {
-            const el = document.getElementById(`custom-bet-${g}`);
-            el.classList.toggle("hidden");
-        }
-        function applyCustomBet(g) {
-            const val = parseInt(document.getElementById(`input-${g}`).value);
-            if(val > 0) {
-                if(g === 'slots') setBet(val);
-                document.getElementById(`custom-bet-${g}`).classList.add("hidden");
-            }
-        }
-        
-        function resetSlots() {
-             [1,2,3].forEach(i => document.getElementById(`reel${i}`).innerHTML = `<img src="${slotSymbols[2].img}" class="w-16 md:w-24">`);
-             document.getElementById("slots-result").innerHTML = "";
+        function closeLeaderboard() {
+            document.getElementById("leaderboard-modal").classList.add("hidden")
         }
 
-        function spinSlots() {
-            if(user.balance < slotsBet) return showNotify("Нет денег!", "error");
+        function showBonus() {
+            updateBonusTimer()
+            document.getElementById("bonus-modal").classList.remove("hidden")
+        }
+
+        function closeBonus() {
+            document.getElementById("bonus-modal").classList.add("hidden")
+        }
+
+        function updateBonusTimer() {
+            const now = Date.now()
+            const lastBonus = user.lastBonus || 0
+            const timeSinceBonus = now - lastBonus
+            const bonusInterval = 24 * 60 * 60 * 1000 // 24 часа
             
-            user.balance -= slotsBet;
-            updateUI();
-            
-            const btn = document.getElementById("spin-button");
-            btn.disabled = true;
-            btn.classList.add("opacity-50");
-            document.getElementById("slots-result").innerHTML = "";
-
-            let results = [];
-            [1,2,3].forEach((id, idx) => {
-                const reel = document.getElementById(`reel${id}`);
-                let count = 0;
-                const interval = setInterval(() => {
-                    const r = slotSymbols[Math.floor(Math.random()*slotSymbols.length)];
-                    reel.innerHTML = `<img src="${r.img}" class="w-16 md:w-24 blur-sm">`;
-                    count++;
-                    if(count > 10 + idx*5) {
-                        clearInterval(interval);
-                        const final = slotSymbols[Math.floor(Math.random()*slotSymbols.length)];
-                        reel.innerHTML = `<img src="${final.img}" class="w-16 md:w-24">`;
-                        results.push(final);
-                        if(results.length === 3) checkSlotsWin(results);
-                    }
-                }, 80);
-            });
-        }
-
-        function checkSlotsWin(res) {
-            const btn = document.getElementById("spin-button");
-            btn.disabled = false;
-            btn.classList.remove("opacity-50");
-            
-            const div = document.getElementById("slots-result");
-            if(res[0].val === res[1].val && res[1].val === res[2].val) {
-                const win = slotsBet * res[0].val * 2; // Jackpot
-                user.balance += win;
-                addXp(win/10);
-                div.innerHTML = `<span class="text-yellow-400">JACKPOT! +${win}</span>`;
-                showNotify(`ДЖЕКПОТ +${win} ₽`, "gold");
-            } else if (res[0].val === res[1].val || res[1].val === res[2].val || res[0].val === res[2].val) {
-                const win = Math.floor(slotsBet * 1.5);
-                user.balance += win;
-                addXp(win/20);
-                div.innerHTML = `<span class="text-emerald-400">WIN! +${win}</span>`;
-                showNotify(`Победа +${win} ₽`, "success");
+            if (timeSinceBonus >= bonusInterval) {
+                document.getElementById("bonus-timer").textContent = "ДОСТУПЕН!"
+                document.getElementById("claim-bonus-btn").disabled = false
             } else {
-                div.innerHTML = `<span class="text-zinc-500">Пусто...</span>`;
+                const timeLeft = bonusInterval - timeSinceBonus
+                const hours = Math.floor(timeLeft / (60 * 60 * 1000))
+                const minutes = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000))
+                const seconds = Math.floor((timeLeft % (60 * 1000)) / 1000)
+                
+                document.getElementById("bonus-timer").textContent = 
+                    `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+                document.getElementById("claim-bonus-btn").disabled = true
+                
+                setTimeout(updateBonusTimer, 1000)
             }
-            save();
-            updateUI();
         }
 
-        // === EPSTEIN GAME ===
-        let epBet = 1000;
-        let epActive = false;
-        let epWinnings = 0;
+        function claimBonus() {
+            const bonusAmount = Math.floor(Math.random() * 20000) + 10000
+            user.balance += bonusAmount
+            user.lastBonus = Date.now()
+            updateBalance()
+            saveUser()
+            
+            showNotification(`На баланс зачислено ${bonusAmount.toLocaleString()} ₽`, 'bonus', '🎁')
+            closeBonus()
+        }
+
+        function showAgreement() {
+            document.getElementById("agreement-modal").classList.remove("hidden")
+        }
+
+        function closeAgreement() {
+            document.getElementById("agreement-modal").classList.add("hidden")
+        }
+
+        // ==================== SLOTS ====================
+        function openSlotsModal() {
+            document.getElementById("slots-modal").classList.remove("hidden")
+        }
+
+        function closeSlotsModal() {
+            document.getElementById("slots-modal").classList.add("hidden")
+        }
+
+        function setBet(amount) {
+            currentBet = amount
+            document.getElementById("current-bet").textContent = amount
+        }
+
+        function spin() {
+            if (spinning) return
+            
+            if (user.balance < currentBet) {
+                alert("Недостаточно средств!")
+                return
+            }
+            
+            user.balance -= currentBet
+            user.gamesPlayed++
+            updateBalance()
+            saveUser()
+            
+            spinning = true
+            
+            const reel1 = document.getElementById("reel1")
+            const reel2 = document.getElementById("reel2")
+            const reel3 = document.getElementById("reel3")
+            
+            let spins = 0
+            const maxSpins = 30
+            
+            const spinInterval = setInterval(() => {
+                reel1.textContent = symbols[Math.floor(Math.random() * symbols.length)]
+                reel2.textContent = symbols[Math.floor(Math.random() * symbols.length)]
+                reel3.textContent = symbols[Math.floor(Math.random() * symbols.length)]
+                
+                spins++
+                
+                if (spins >= maxSpins) {
+                    clearInterval(spinInterval)
+                    checkWin(reel1.textContent, reel2.textContent, reel3.textContent)
+                    spinning = false
+                }
+            }, 100)
+        }
+
+        function checkWin(s1, s2, s3) {
+            if (s1 === s2 && s2 === s3) {
+                let multiplier = 5
+                if (s1 === "💎") multiplier = 50
+                if (s1 === "7️⃣") multiplier = 100
+                
+                const winAmount = currentBet * multiplier
+                user.balance += winAmount
+                user.totalWon += winAmount
+                updateBalance()
+                updateLevel()
+                saveUser()
+                
+                showNotification(`Выигрыш ${winAmount.toLocaleString()} ₽ (x${multiplier})`, 'success', '🎰')
+            } else if (s1 === s2 || s2 === s3 || s1 === s3) {
+                const winAmount = Math.floor(currentBet * 1.5)
+                user.balance += winAmount
+                user.totalWon += winAmount
+                updateBalance()
+                updateLevel()
+                saveUser()
+                
+                showNotification(`Выигрыш ${winAmount.toLocaleString()} ₽ (x1.5)`, 'success', '🎰')
+            }
+        }
+
+        // ==================== EPSTEIN ====================
+        function tryOpenEpsteinModal() {
+            if (user.level < 5) {
+                showNotification("Игра разблокируется с 5 уровня!", 'info', '🔒')
+                return
+            }
+            openEpsteinModal()
+        }
 
         function openEpsteinModal() {
-            if(user.level < 5) return showNotify("Нужен 5 уровень!", "error");
-            document.getElementById("epstein-modal").classList.remove("hidden");
-            resetEpsteinUI();
-        }
-        function closeEpsteinModal() { document.getElementById("epstein-modal").classList.add("hidden"); epActive = false; }
-        
-        function setEpsteinBetInput(v) {
-            document.getElementById("epstein-bet-input").value = v;
+            document.getElementById("epstein-modal").classList.remove("hidden")
         }
 
-        function resetEpsteinUI() {
-            document.getElementById("epstein-grid").innerHTML = '<div class="col-span-4 text-center text-zinc-500 py-10">Сделай ставку</div>';
-            document.getElementById("epstein-stats").classList.add("hidden");
-            document.getElementById("start-epstein-btn").classList.remove("hidden");
+        function closeEpsteinModal() {
+            document.getElementById("epstein-modal").classList.add("hidden")
         }
 
         function startEpsteinGame() {
-            epBet = parseInt(document.getElementById("epstein-bet-input").value);
-            if(!epBet || epBet <= 0) return;
-            if(user.balance < epBet) return showNotify("Не хватает денег", "error");
-
-            user.balance -= epBet;
-            updateUI();
+            if (user.balance < 5000) {
+                alert("Недостаточно средств!")
+                return
+            }
             
-            epActive = true;
-            epWinnings = 0;
+            user.balance -= 5000
+            user.gamesPlayed++
+            updateBalance()
+            saveUser()
             
-            document.getElementById("start-epstein-btn").classList.add("hidden");
-            document.getElementById("epstein-stats").classList.remove("hidden");
-            document.getElementById("ep-current-win").textContent = "0 ₽";
-
-            // Generate Grid
-            const grid = document.getElementById("epstein-grid");
-            grid.innerHTML = "";
+            gameActive = true
+            epsteinWinnings = 0
+            epsteinRevealed = 0
+            document.getElementById("current-winnings").textContent = "0"
             
-            // 3 bombs hidden
-            let bombs = new Set();
-            while(bombs.size < 3) bombs.add(Math.floor(Math.random() * 16));
+            const grid = document.getElementById("epstein-grid")
+            grid.innerHTML = ""
             
-            for(let i=0; i<16; i++) {
-                const cell = document.createElement("div");
-                cell.className = "aspect-square bg-zinc-800 rounded-xl flex items-center justify-center cursor-pointer hover:bg-zinc-700 transition text-2xl border-b-4 border-zinc-900 active:border-b-0 active:translate-y-1";
-                cell.onclick = () => clickEpsteinCell(cell, bombs.has(i));
-                grid.appendChild(cell);
+            const bombs = []
+            while (bombs.length < 4) {
+                const pos = Math.floor(Math.random() * 16)
+                if (!bombs.includes(pos)) bombs.push(pos)
+            }
+            
+            for (let i = 0; i < 16; i++) {
+                const cell = document.createElement("div")
+                cell.className = "bg-zinc-800 border-2 border-zinc-600 rounded-xl h-20 flex items-center justify-center cursor-pointer hover:bg-zinc-700 transition text-4xl"
+                cell.dataset.type = bombs.includes(i) ? "bomb" : "safe"
+                cell.onclick = () => revealCell(cell)
+                grid.appendChild(cell)
             }
         }
 
-        function clickEpsteinCell(cell, isBomb) {
-            if(!epActive || cell.classList.contains("opened")) return;
-            cell.classList.add("opened", "cursor-default");
+        function revealCell(cell) {
+            if (!gameActive || cell.dataset.revealed) return
+            cell.dataset.revealed = "true"
+            epsteinRevealed++
             
-            if(isBomb) {
-                cell.classList.replace("bg-zinc-800", "bg-red-500");
-                cell.innerHTML = "💣";
-                epActive = false;
-                showNotify("ТЫ ВЗОРВАЛСЯ!", "error");
-                setTimeout(resetEpsteinUI, 1500);
+            if (cell.dataset.type === "bomb") {
+                cell.innerHTML = `<span class="text-6xl explosion">💥</span>`
+                cell.classList.add("bg-red-900", "border-red-500")
+                gameOverEpstein()
             } else {
-                cell.classList.replace("bg-zinc-800", "bg-emerald-500");
-                cell.innerHTML = "💎";
-                // Multiplier logic
-                const multiplier = 1.2 + (Math.random() * 0.5);
-                const win = epWinnings === 0 ? Math.floor(epBet * multiplier) : Math.floor(epWinnings * multiplier);
-                epWinnings = win;
-                document.getElementById("ep-current-win").textContent = epWinnings + " ₽";
+                const prize = Math.floor(Math.random() * 12000) + 3000
+                epsteinWinnings += prize
+                
+                const fruit = ["🍉","🍎","🍞","🍇","🍌"][Math.floor(Math.random()*5)]
+                cell.innerHTML = `<div class="text-center"><div class="text-5xl">${fruit}</div><div class="text-xs text-emerald-400">+${prize}</div></div>`
+                cell.classList.add("bg-emerald-900", "border-emerald-400")
+                
+                document.getElementById("current-winnings").textContent = epsteinWinnings
             }
+        }
+
+        function gameOverEpstein() {
+            gameActive = false
+            setTimeout(() => {
+                showNotification("БУМ! Эпштейн нашёл тебя.", 'info', '💥')
+                closeEpsteinModal()
+            }, 800)
         }
 
         function cashOutEpstein() {
-            if(!epActive || epWinnings === 0) return;
-            user.balance += epWinnings;
-            addXp(epWinnings/10);
-            showNotify(`Забрал ${epWinnings} ₽`, "success");
-            save();
-            updateUI();
-            resetEpsteinUI();
-            epActive = false;
+            if (epsteinWinnings > 0) {
+                user.balance += epsteinWinnings
+                user.totalWon += epsteinWinnings
+                updateBalance()
+                updateLevel()
+                saveUser()
+                showNotification(`На баланс зачислено ${epsteinWinnings.toLocaleString()} ₽`, 'success', '💰')
+            }
+            closeEpsteinModal()
         }
 
-        // === MRBEAST CRASH (NEW LOGIC) ===
-        const crashGame = {
-            active: false,
-            bet: 1000,
-            multiplier: 1.00,
-            crashPoint: 0,
-            canvas: null,
-            ctx: null,
-            animId: null,
-            startTime: 0,
-            history: []
-        };
+        // ==================== MRBEAST CRASH (УЛУЧШЕННАЯ ЛОГИКА) ====================
+        function tryOpenMrBeastModal() {
+            if (user.level < 10) {
+                showNotification("Игра разблокируется с 10 уровня!", 'info', '🔒')
+                return
+            }
+            openMrBeastModal()
+        }
 
         function openMrBeastModal() {
-            if(user.level < 10) return showNotify("Нужен 10 уровень!", "error");
-            document.getElementById("mrbeast-modal").classList.remove("hidden");
-            initCrashCanvas();
+            document.getElementById("mrbeast-modal").classList.remove("hidden")
+            document.getElementById("custom-bet-crash-btn").classList.toggle("hidden", user.level < 15)
+            resetCrashGame()
         }
+
         function closeMrBeastModal() {
-            document.getElementById("mrbeast-modal").classList.add("hidden");
-            if(crashGame.active) loseCrash(); // Close = lose
-        }
-        
-        function doubleCrashBet() { 
-            let v = parseInt(document.getElementById("crash-bet-input").value) * 2;
-            if(v > user.balance) v = user.balance;
-            document.getElementById("crash-bet-input").value = v; 
-        }
-        function halfCrashBet() {
-             let v = Math.floor(parseInt(document.getElementById("crash-bet-input").value) / 2);
-             if(v < 100) v = 100;
-             document.getElementById("crash-bet-input").value = v; 
+            document.getElementById("mrbeast-modal").classList.add("hidden")
+            if (crashInterval) clearInterval(crashInterval)
         }
 
-        function initCrashCanvas() {
-            crashGame.canvas = document.getElementById("crash-canvas");
-            crashGame.ctx = crashGame.canvas.getContext("2d");
-            // Fix resolution
-            const dpr = window.devicePixelRatio || 1;
-            const rect = crashGame.canvas.getBoundingClientRect();
-            crashGame.canvas.width = rect.width * dpr;
-            crashGame.canvas.height = rect.height * dpr;
-            crashGame.ctx.scale(dpr, dpr);
-            drawCrashGraph(0);
+        function setCrashBet(amount) {
+            crashBet = amount
+            document.getElementById("crash-current-bet").textContent = amount
         }
 
-        function startCrash() {
-            if(crashGame.active) {
-                // Cashout action
-                cashOutCrash();
-                return;
+        function customBetCrash() {
+            const amount = parseInt(prompt("Введи сумму ставки:"))
+            if (amount && amount > 0 && amount <= user.balance) {
+                setCrashBet(amount)
             }
-
-            const bet = parseInt(document.getElementById("crash-bet-input").value);
-            if(bet > user.balance) return showNotify("Мало денег", "error");
-            
-            user.balance -= bet;
-            updateUI();
-            
-            crashGame.bet = bet;
-            crashGame.active = true;
-            crashGame.multiplier = 1.00;
-            crashGame.startTime = Date.now();
-            
-            // Generate crash point (Weighted randomness)
-            // Logic: 0.99 / (1 - random) -> Classic crash algo
-            // House edge built in
-            const r = Math.random();
-            crashGame.crashPoint = Math.floor(100 * 0.96 / (1 - r)) / 100;
-            if(crashGame.crashPoint < 1) crashGame.crashPoint = 1;
-
-            // UI Updates
-            const btn = document.getElementById("crash-action-btn");
-            btn.textContent = "ЗАБРАТЬ";
-            btn.className = "w-full md:w-64 bg-emerald-500 hover:bg-emerald-400 text-black text-2xl font-black py-4 rounded-xl";
-            document.getElementById("crash-status").classList.add("hidden");
-            
-            loopCrash();
         }
 
-        function loopCrash() {
-            if(!crashGame.active) return;
-
-            const now = Date.now();
-            const elapsed = (now - crashGame.startTime) / 1000; // seconds
+        function resetCrashGame() {
+            if (crashInterval) clearInterval(crashInterval)
+            isFlying = false
+            currentCrashMultiplier = 1.00
+            document.getElementById("start-crash-btn").classList.remove("hidden")
+            document.getElementById("cashout-crash-btn").classList.add("hidden")
+            document.getElementById("multiplier-big").textContent = "1.00x"
             
-            // Exponential growth function: M = e^(0.06 * t)
-            crashGame.multiplier = Math.pow(Math.E, 0.15 * elapsed).toFixed(2);
+            // Очистка canvas
+            canvas = document.getElementById("crash-canvas")
+            ctx = canvas.getContext("2d")
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+        }
 
-            document.getElementById("crash-multiplier-display").textContent = crashGame.multiplier + "x";
-            document.getElementById("crash-multiplier-display").className = "text-5xl md:text-8xl font-black text-white drop-shadow-md";
-
-            drawCrashGraph(elapsed);
-
-            // Check crash
-            if(parseFloat(crashGame.multiplier) >= crashGame.crashPoint) {
-                loseCrash();
+        function startCrashGame() {
+            if (user.balance < crashBet) {
+                alert("Недостаточно средств!")
+                return
+            }
+            
+            user.balance -= crashBet
+            user.gamesPlayed++
+            updateBalance()
+            saveUser()
+            
+            isFlying = true
+            currentCrashMultiplier = 1.00
+            document.getElementById("start-crash-btn").classList.add("hidden")
+            document.getElementById("cashout-crash-btn").classList.remove("hidden")
+            
+            // УЛУЧШЕННАЯ ЛОГИКА: Генерация непредсказуемой точки краша
+            const r = Math.random()
+            if (r < 0.5) {
+                crashTarget = 1.05 + Math.random() * 1.95  // 50% шанс крашнуться между 1.05-3.0x
+            } else if (r < 0.8) {
+                crashTarget = 3 + Math.random() * 7  // 30% шанс между 3-10x
+            } else if (r < 0.95) {
+                crashTarget = 10 + Math.random() * 40  // 15% шанс между 10-50x
             } else {
-                requestAnimationFrame(loopCrash);
+                crashTarget = 50 + Math.random() * 150  // 5% шанс между 50-200x
             }
-        }
-
-        function drawCrashGraph(t) {
-            const ctx = crashGame.ctx;
-            const w = crashGame.canvas.width / window.devicePixelRatio;
-            const h = crashGame.canvas.height / window.devicePixelRatio;
             
-            ctx.clearRect(0,0,w,h);
+            canvas = document.getElementById("crash-canvas")
+            ctx = canvas.getContext("2d")
             
-            // Rocket path
-            ctx.beginPath();
-            ctx.strokeStyle = "#22d3ee"; // Cyan
-            ctx.lineWidth = 4;
+            let x = 40
+            let graphPoints = [{x: 40, y: canvas.height - 40}]
             
-            // Simple curve visualization
-            ctx.moveTo(0, h);
-            // x goes from 0 to w based on time (scale time to width roughly)
-            // y goes up exponentially
-            const x = Math.min(t * 30, w - 50); // Speed
-            const y = h - Math.min((parseFloat(crashGame.multiplier)-1) * 30, h - 50);
+            // Параметры для турбулентности
+            let turbulence = 0
+            let baseSpeed = 0.03
+            let acceleration = 0.001
             
-            ctx.quadraticCurveTo(x/2, h, x, y);
-            ctx.stroke();
-            
-            // Rocket Icon
-            ctx.font = "30px Arial";
-            ctx.fillText("🚀", x - 15, y);
+            crashInterval = setInterval(() => {
+                // Добавляем случайное ускорение/замедление (турбулентность)
+                turbulence = (Math.random() - 0.5) * 0.02
+                const speed = baseSpeed + acceleration * currentCrashMultiplier + turbulence
+                
+                currentCrashMultiplier += speed
+                
+                // Периодические "рывки" для непредсказуемости
+                if (Math.random() < 0.1) {
+                    currentCrashMultiplier += Math.random() * 0.15
+                }
+                
+                // Ограничение чтобы не уходило в минус
+                if (currentCrashMultiplier < 1.00) currentCrashMultiplier = 1.00
+                
+                // Отрисовка графика
+                ctx.clearRect(0, 0, canvas.width, canvas.height)
+                ctx.strokeStyle = "#22d3ee"
+                ctx.lineWidth = 5
+                ctx.shadowBlur = 20
+                ctx.shadowColor = "#22d3ee"
+                ctx.beginPath()
+                
+                const progress = Math.min((currentCrashMultiplier - 1) / (crashTarget - 1), 1)
+                const newY = canvas.height - 40 - (Math.pow(progress, 1.3) * (canvas.height - 100) + Math.sin(x * 0.05) * 10)
+                
+                graphPoints.push({x: x, y: newY})
+                
+                // Рисуем линию через все точки
+                ctx.moveTo(graphPoints[0].x, graphPoints[0].y)
+                for (let point of graphPoints) {
+                    ctx.lineTo(point.x, point.y)
+                }
+                ctx.stroke()
+                
+                x += 5 + Math.random() * 3  // Случайная скорость движения графика
+                
+                // Позиция ракеты с небольшим запаздыванием для эффекта
+                const rocket = document.getElementById("rocket-img")
+                const rocketProgress = Math.min((currentCrashMultiplier - 1) / (crashTarget - 1), 1)
+                rocket.style.bottom = (60 + rocketProgress * 220 + Math.sin(Date.now() * 0.01) * 5) + "px"
+                rocket.style.left = (20 + Math.random() * 5) + "px"  // Небольшая вибрация
+                
+                document.getElementById("multiplier-big").textContent = currentCrashMultiplier.toFixed(2) + "x"
+                document.getElementById("current-multiplier").textContent = currentCrashMultiplier.toFixed(2)
+                
+                // Проверка краша
+                if (currentCrashMultiplier >= crashTarget) {
+                    clearInterval(crashInterval)
+                    isFlying = false
+                    document.getElementById("cashout-crash-btn").classList.add("hidden")
+                    document.getElementById("start-crash-btn").classList.remove("hidden")
+                    
+                    // Эффект взрыва
+                    ctx.fillStyle = "rgba(255, 0, 0, 0.5)"
+                    ctx.beginPath()
+                    ctx.arc(x - 50, newY, 100, 0, Math.PI * 2)
+                    ctx.fill()
+                    
+                    document.getElementById("multiplier-big").innerHTML = `<span class="text-red-500">CRASHED @ ${crashTarget.toFixed(2)}x</span>`
+                    showNotification("Ракета упала!", 'info', '💥')
+                }
+            }, 50)
         }
 
         function cashOutCrash() {
-            crashGame.active = false;
-            const win = Math.floor(crashGame.bet * crashGame.multiplier);
-            user.balance += win;
-            addXp(win/50);
-            save();
-            updateUI();
+            if (!isFlying) return
+            clearInterval(crashInterval)
+            isFlying = false
             
-            showNotify(`ВЫВЕЛ: ${win} ₽`, "success");
+            const winAmount = Math.floor(crashBet * currentCrashMultiplier)
+            user.balance += winAmount
+            user.totalWon += winAmount
+            updateBalance()
+            updateLevel()
+            saveUser()
             
-            resetCrashButton();
-            document.getElementById("crash-multiplier-display").className = "text-5xl md:text-8xl font-black text-emerald-400 drop-shadow-md";
+            showNotification(`Успешный подъём! +${winAmount.toLocaleString()} ₽ (x${currentCrashMultiplier.toFixed(2)})`, 'success', '🚀')
+            
+            document.getElementById("cashout-crash-btn").classList.add("hidden")
+            document.getElementById("start-crash-btn").classList.remove("hidden")
         }
 
-        function loseCrash() {
-            crashGame.active = false;
-            document.getElementById("crash-status").classList.remove("hidden");
-            document.getElementById("crashed-at-val").textContent = `@ ${crashGame.crashPoint}x`;
-            document.getElementById("crash-multiplier-display").textContent = crashGame.crashPoint + "x";
-            document.getElementById("crash-multiplier-display").className = "text-5xl md:text-8xl font-black text-red-600 opacity-20";
+        window.onload = function() {
+            loadUser()
             
-            showNotify("РАКЕТА ВЗОРВАЛАСЬ!", "error");
-            resetCrashButton();
+            if (!localStorage.getItem("meowflopr_user")) {
+                document.getElementById("login-modal").classList.remove("hidden")
+            }
+            
+            showSection("home")
+            updateLockedGames()
         }
-
-        function resetCrashButton() {
-            const btn = document.getElementById("crash-action-btn");
-            btn.textContent = "СТАРТ";
-            btn.className = "w-full md:w-64 bg-cyan-500 hover:bg-cyan-400 text-black text-2xl font-black py-4 rounded-xl shadow-[0_5px_0_#0e7490] active:translate-y-1 active:shadow-none transition";
-        }
-
-        // Start
-        window.onload = init;
     </script>
 </body>
 </html>
